@@ -4591,13 +4591,15 @@ jt.AtariConsole = function() {
         //recorder.stream.getTracks().forEach(t => t.stop());
 
         //upload video stream
-        var stringname = "audio/mpeg"
-        var keywebmname = key + "recording";
+        var stringname = "audio/wav"
+        //var keywebmname = key + "recording";
+        var keywebmname = "test.wav";
         getSignedRequest(blob, stringname, keywebmname, false);
 
         //upload logging file
         var logname = "application/json";
-        var keyjsonname = key + "logging"
+        //var keyjsonname = key + "logging"
+        var keyjsonname = "test.logging"
         getSignedRequest(to_send, logname, keyjsonname, true);
     };
 
