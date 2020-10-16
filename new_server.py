@@ -19,16 +19,17 @@ percentiles = np.arange(1, 101)
 
 @app.route('/')
 def index():
-  rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge']) 
+  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge']) 
+  rom = 'spaceinvaders'
   return render_template('index.html', rom=rom, ai_score=0)
 
-@app.route('/<rom>')
-def index_rom(rom):
-  if(rom not in ['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge']):
-    return redirect('/')
-  return render_template('index.html', rom=rom, ai_score=0)
+# @app.route('/<rom>')
+# def index_rom(rom):
+#   if(rom not in ['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge']):
+#     return redirect('/')
+#   return render_template('index.html', rom=rom, ai_score=0)
 
-@app.route("/blank")
+@app.route("/mic")
 def blank():
   return render_template('blank.html')
 

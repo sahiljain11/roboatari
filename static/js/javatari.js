@@ -4496,8 +4496,13 @@ jt.AtariConsole = function() {
               frame_data['score'] = self.game.score;
               trajectory[self.game.frame-1] = frame_data;
               if(self.game.frame % 60 == 0) {
-                var score = self.started ? self.game.score:0;
-                update_score(score); 
+                //var score = self.started ? self.game.score:0;
+                if (finished_uploading == false) {
+                    update_score("Unknown");
+                }
+                else {
+                    update_score("key");
+                }
               }
             } else {
               self.save_seq();
@@ -4515,7 +4520,7 @@ jt.AtariConsole = function() {
 
     this.resetEnv = async function() {
         if (mic_enabled == false) {
-            window.location.replace("blank");
+            window.location.replace("mic");
         }
         if (stream != null){
             console.log("resetEnv");
@@ -4601,6 +4606,7 @@ jt.AtariConsole = function() {
         //var keyjsonname = key + "logging"
         var keyjsonname = "test.logging"
         getSignedRequest(to_send, logname, keyjsonname, true);
+        finished_uploading = true;
     };
 
     var getSignedRequest = function (file, stringname, keyname, isJson){

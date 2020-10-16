@@ -31,7 +31,7 @@ window.onload = function() {
 
   if (typeof(Storage) !== "undefined") {
     if(localStorage.getItem("isMuted") == null || localStorage.getItem("isMuted") == "true") {
-      Javatari.room.speaker.mute();
+      //Javatari.room.speaker.mute();
       localStorage.setItem("isMuted", true);
       $("#sound-btn").addClass("off");
       $("#sound-btn").text("Sound OFF");
@@ -41,20 +41,20 @@ window.onload = function() {
     }
   }
 
-  $("#sound-btn").click(function(){
-    if($(this).hasClass('off')) {
-      $(this).text("Sound ON");
-      $(this).removeClass('off').addClass('on');
-      Javatari.room.speaker.play();
-      localStorage.setItem("isMuted", "false");
-      
-    } else if($(this).hasClass('on')) {
-      $(this).text("Sound OFF");
-      $(this).removeClass('on').addClass('off');
-      Javatari.room.speaker.mute();
-      localStorage.setItem("isMuted", "true");
-    }
-  });
+  //$("#sound-btn").click(function(){
+  //  if($(this).hasClass('off')) {
+  //    $(this).text("Sound ON");
+  //    $(this).removeClass('off').addClass('on');
+  //    Javatari.room.speaker.play();
+  //    localStorage.setItem("isMuted", "false");
+  //    
+  //  } else if($(this).hasClass('on')) {
+  //    $(this).text("Sound OFF");
+  //    $(this).removeClass('on').addClass('off');
+  //    Javatari.room.speaker.mute();
+  //    localStorage.setItem("isMuted", "true");
+  //  }
+  //});
   scores = 0;
 
 }
@@ -92,8 +92,8 @@ var setup_reset_btn = function(but) {
 
 }
 
-var update_score = function(score) {
-    var percentile = 100;
+var update_score = function(text) {
+    //var percentile = 100;
     //for(var i=99; i>=0;i--) {
     //  if(scores[i] > score) {
     //    percentile-=1;
@@ -101,15 +101,12 @@ var update_score = function(score) {
     //    break;
     //  }
     //}
-    var text = "You got this!"
-    $("#human-bar-text").html(text);
-    $("#human-score").width(percentile+"%");
     
-    var ai_text = "<b>you</b> vs <b>AI</b>: " + score + " / " + ai_score; 
+    var ai_text = "MTurk Key: " + text
     $("#ai-bar-text").html(ai_text);
-    ai_percentile = parseInt(100*score/ai_score);
-    if(ai_percentile > 100) {
-      ai_percentile = 100;
-    }
-    $("#ai-score").width(ai_percentile+"%");
+    //ai_percentile = parseInt(100*score/ai_score);
+    //if(ai_percentile > 100) {
+    //  ai_percentile = 100;
+    //}
+    //$("#ai-score").width(ai_percentile+"%");
 }
