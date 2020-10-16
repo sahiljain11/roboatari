@@ -1,10 +1,12 @@
 import os
 import random
 from keys import *
-from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, abort
+from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, abort, session
 import json
 import numpy as np
 import boto3
+import string
+from flask_session import Session
 # from flask_mobility import Mobility
 # from flask_mobility.decorators import mobile_template
 
@@ -14,14 +16,26 @@ import boto3
 # import cv2
 
 app = Flask(__name__)
+app.secret_key = 'afisdosadkfsdialjk'
+app.config['SESSION_TYPE'] = 'filesystem'
 
-percentiles = np.arange(1, 101)
+sess = Session()
+sess.init_app(app)
+
+def ran_gen(size, chars=string.ascii_uppercase + string.digits):
+  return ''.join(random.choice(chars) for x in range(size))
 
 @app.route('/')
 def index():
-  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge']) 
+  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
+  session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
   rom = 'spaceinvaders'
   return render_template('index.html', rom=rom, ai_score=0)
+
+@app.route('/key')
+def key():
+  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
+  return jsonify({"key": session["key"]})
 
 # @app.route('/<rom>')
 # def index_rom(rom):
@@ -66,14 +80,6 @@ def api_save():
   print(store)
 
   return "finished"
-
-@app.route('/about')
-def about():
-  return render_template('about.html')
-
-@app.route('/data')
-def data():
-  return render_template('data.html')
 
 if __name__ == "__main__":
   app.run()

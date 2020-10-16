@@ -24,6 +24,7 @@
 
     <script>
       var finished_uploading = false;
+      var found = false;
       var mic_enabled = false;
       let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
       .then(
@@ -46,7 +47,7 @@
       <br>
       <div class="parent">
         <div class="right">
-          <div class="score">
+          <div class="score" id="mturk-key">
             <span id="ai-bar-text"></span>
           </div>
           <div id="controls">

@@ -4495,13 +4495,20 @@ jt.AtariConsole = function() {
               frame_data['terminal'] = self.game.terminal;
               frame_data['score'] = self.game.score;
               trajectory[self.game.frame-1] = frame_data;
-              if(self.game.frame % 60 == 0) {
+              if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
                 if (finished_uploading == false) {
                     update_score("Unknown");
                 }
                 else {
-                    update_score("key");
+                    fetch('/key', {
+                        method: 'GET'
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(async function(json) {
+                        update_score(json.key);
+                        found = true;
+                    });
                 }
               }
             } else {
@@ -4594,19 +4601,33 @@ jt.AtariConsole = function() {
 
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
+        var key;
+        fetch('/key', {
+            method: 'GET'
+        }).then(function (response) {
+            return response.json();
+        }).then(async function(json) {
+            key = json.key;
+            //upload video stream
+            var stringname = "audio/wav"
+            //var keywebmname = key + "recording";
+            var keywebmname = key + ".wav";
+            getSignedRequest(blob, stringname, keywebmname, false);
 
-        //upload video stream
-        var stringname = "audio/wav"
-        //var keywebmname = key + "recording";
-        var keywebmname = "test.wav";
-        getSignedRequest(blob, stringname, keywebmname, false);
+            //upload logging file
+            var logname = "application/json";
+            //var keyjsonname = key + "logging"
+            var keyjsonname = key + ".json"
+            getSignedRequest(to_send, logname, keyjsonname, true);
 
-        //upload logging file
-        var logname = "application/json";
-        //var keyjsonname = key + "logging"
-        var keyjsonname = "test.logging"
-        getSignedRequest(to_send, logname, keyjsonname, true);
-        finished_uploading = true;
+            finished_uploading = true;
+            update_score(json.key);
+            found = true;
+
+            $("#mturk-key").css("background-color", "green");
+            console.log($("#mturk-key").css("background-color"));
+        });
+
     };
 
     var getSignedRequest = function (file, stringname, keyname, isJson){
@@ -4620,7 +4641,7 @@ jt.AtariConsole = function() {
                     uploadFile(file, response.data, response.url, response, isJson);
                 }
                 else{
-                    alert("Could not get signed URL.");
+                    //alert("Could not get signed URL.");
                 }
             }   
         };
