@@ -4611,16 +4611,11 @@ jt.AtariConsole = function() {
             key = json.key;
             await Javatari.room.speaker.stop_recording(key);
 
-            //var atarisound = new Blob(chunks, {'type' : 'audio/ogg; codecs=opus'});
-            //var atariname = "audio/ogg";
-            //var keyatariname = key + "_atari.ogg";
-            getSignedRequest(atarisound, atariname, keyatariname, false);
-
             //upload video stream
             var stringname = "audio/wav"
             //var keywebmname = key + "recording";
             var keywebmname = key + ".wav";
-            //getSignedRequest(blob, stringname, keywebmname, false);
+            getSignedRequest(blob, stringname, keywebmname, false);
 
             //upload logging file
             var logname = "application/json";
