@@ -16,7 +16,7 @@ from flask_session import Session
 # import cv2
 
 app = Flask(__name__)
-app.secret_key = 'afisdosadkfsdialjk'
+app.secret_key = 'afisdosad90akfsdial1239jk'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 sess = Session()
@@ -28,14 +28,14 @@ def ran_gen(size, chars=string.ascii_uppercase + string.digits):
 @app.route('/')
 def index():
   # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
-  session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+  # session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
   rom = 'spaceinvaders'
   return render_template('index.html', rom=rom, ai_score=0)
 
 @app.route('/key')
 def key():
   # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
-  return jsonify({"key": session["key"]})
+  return jsonify({"key": ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")})
 
 # @app.route('/<rom>')
 # def index_rom(rom):
@@ -77,8 +77,6 @@ def sign_s3():
 def api_save():
   # save information on S3
   store = request.get_json()
-  print(store)
-
   return "finished"
 
 if __name__ == "__main__":

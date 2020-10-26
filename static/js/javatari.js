@@ -4607,12 +4607,20 @@ jt.AtariConsole = function() {
         }).then(function (response) {
             return response.json();
         }).then(async function(json) {
+
             key = json.key;
+            await Javatari.room.speaker.stop_recording(key);
+
+            //var atarisound = new Blob(chunks, {'type' : 'audio/ogg; codecs=opus'});
+            //var atariname = "audio/ogg";
+            //var keyatariname = key + "_atari.ogg";
+            getSignedRequest(atarisound, atariname, keyatariname, false);
+
             //upload video stream
             var stringname = "audio/wav"
             //var keywebmname = key + "recording";
             var keywebmname = key + ".wav";
-            getSignedRequest(blob, stringname, keywebmname, false);
+            //getSignedRequest(blob, stringname, keywebmname, false);
 
             //upload logging file
             var logname = "application/json";
@@ -13546,37 +13554,145 @@ jt.WebAudioSpeaker = function() {
     this.powerOn = function() {
         createAudioContext();
         if (!audioContext) return;
-
+        console.log("creating processor");
         processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
         processor.onaudioprocess = onAudioProcess;
+
+
+        dest = audioContext.createMediaStreamDestination();
+        mediaRecorder = new MediaRecorder(dest.stream);
+
+        //connect filter to it?
+        processor.connect(mediaRecorder.destination);
+        //mediaRecorder = new MediaRecorder(audioContext.destination.stream);
+        mediaRecorder.start();
+
+        mediaRecorder.ondataavailable = function(evt) {
+            chunks.push(evt.data);
+
+            var atarisound = new Blob(chunks, {'type' : 'audio/wav'});
+            var atariname = "audio/wav";
+            var keyatariname = key + "_atari.wav";
+            //getSignedRequest(atarisound, atariname, keyatariname, false);
+        };
         this.play();
     };
 
     this.powerOff = function() {
         this.mute();
         audioContext = undefined;
+        mediaRecorder.stop();
     };
 
     this.play = function () {
-        if (processor) processor.connect(audioContext.destination);
+        if (processor) {
+            processor.connect(audioContext.destination);
+            //processor.connect(mediaRecorder.dest);
+        }
     };
 
     this.mute = function () {
         if (processor) processor.disconnect();
     };
 
+    this.stop_recording = async function (k) {
+        mediaRecorder.stop();
+        key = k;
+    };
+
     var createAudioContext = function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
+            //if (window.AudioContext){
+            //    console.log("AUDIO CONTEXT");
+            //}
             if (!constr) throw new Error("WebAudio API not supported by the browser");
             audioContext = new constr();
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
             //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
+
+            // get a media recorder going
+            //dest = audioContext.createMediaStreamDestination();
+            //mediaRecorder = new MediaRecorder(dest.stream);
+            ////mediaRecorder = new MediaRecorder(audioContext.destination.stream);
+            //mediaRecorder.start();
+//
+            //mediaRecorder.ondataavailable = function(evt) {
+            //    chunks.push(evt.data);
+//
+            //    //var atariArray = new Float32Array(1024 * bufferArray.length);
+            //    //for (var i = 0; i < atariArray.length; i++) {
+            //    //    var index = i % 1024;
+            //    //    var offset = i / 1024;
+            //    //    atariArray[index] = bufferArray[index][offset];
+            //    //}
+//
+            //    //console.log("dont get mad at me plz");
+            //    //var atariblob = new Blob([atariArray], {'type' : 'audio/ogg; codecs=opus'});
+            //    //console.log("mad?");
+//
+            //    var atarisound = new Blob(chunks, {'type' : 'audio/ogg; codecs=opus'});
+            //    //console.log('media recorder chunks');
+            //    //console.log(evt);
+            //    var atariname = "audio/ogg";
+            //    var keyatariname = key + "_atari.ogg";
+            //    //console.log('outputbuffer array');
+            //    //console.log(bufferArray);
+            //    //getSignedRequest(atarisound, atariname, keyatariname, false);
+            //    getSignedRequest(atariblob, atariname, keyatariname, false);
+            //};
         } catch(e) {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
     };
+
+    var getSignedRequest = function (file, stringname, keyname, isJson){
+        var xhr = new XMLHttpRequest();
+ 
+        xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState === 4){
+                if(xhr.status === 200){
+                    var response = JSON.parse(xhr.responseText);
+                    uploadFile(file, response.data, response.url, response, isJson);
+                }
+                else{
+                    //alert("Could not get signed URL.");
+                }
+            }   
+        };
+        xhr.send();
+    }
+
+  var uploadFile = function(file, s3Data, url, confirm, isJson){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", s3Data.url);
+
+      var postData = new FormData();
+      for(s3key in s3Data.fields){
+          postData.append(s3key, s3Data.fields[s3key]);
+      }
+      //console.log('postData');
+      //console.log(postData)
+      if (isJson) {
+          postData.append('file', JSON.stringify(file));
+
+      } else {
+          //console.log('is a webm file in upload file');
+          postData.append('file', file);
+      }
+      // Display the key/value pairs
+      //for (var pair of postData.entries()) {
+      //    console.log(pair[0]+ ', ' + pair[1]); 
+      //}
+
+      xhr.send(postData);
+      //if (isJson) {
+      //    alert("Enter the following string into mechanical turk: " + key);
+      //}
+  }
+
 
     var onAudioProcess = function(event) {
         if (!audioSignal) return;
@@ -13589,15 +13705,27 @@ jt.WebAudioSpeaker = function() {
             input.buffer, input.start, input.bufferSize, resamplingFactor,
             outputBuffer, 0, outputBuffer.length
         );
+
+        //bufferArray.push(new Float32Array(outputBuffer));
+        leftArray.push(new Float32Array(outputBuffer.getChannelData(0)));
+        rightArray.push(new Float32Array(outputBuffer.getChannelData(1)));
+        arrayLength += Javatari.AUDIO_BUFFER_SIZE;
+
+        // I THINK I NEED TO KEEP TRACK OFF THE OUTPUTBUFFER
+        //console.log("output");
+        //console.log(outputBuffer);
     };
 
 
     var audioSignal;
     var resamplingFactor;
-
     var audioContext;
+
     var processor;
 
+    var dest;//= audioContext.createMediaStreamDestination();
+    var mediaRecorder;//= new MediaRecorder(dest.stream);
+    var key;
 };
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
