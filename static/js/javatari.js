@@ -4585,6 +4585,7 @@ jt.AtariConsole = function() {
 
         //jt.Util.log("Finished starting to record");
         self.start_recording_finished = true;
+        started = true;
     };
 
     async function get_stream() {
@@ -4641,7 +4642,7 @@ jt.AtariConsole = function() {
             if(xhr.readyState === 4){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
-                    uploadFile(file, response.data, response.url, response, isJson);
+                    uploadFile(file, response.data, response.url, response, isJson, file);
                 }
                 else{
                     //alert("Could not get signed URL.");
@@ -4651,7 +4652,7 @@ jt.AtariConsole = function() {
         xhr.send();
     }
 
-  var uploadFile = function(file, s3Data, url, confirm, isJson){
+  var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
       var xhr = new XMLHttpRequest();
       xhr.open("POST", s3Data.url);
 
@@ -4674,6 +4675,7 @@ jt.AtariConsole = function() {
       //}
 
       xhr.send(postData);
+      console.log("Sent " + stringname + " to s3");
       //if (isJson) {
       //    alert("Enter the following string into mechanical turk: " + key);
       //}
@@ -13558,17 +13560,55 @@ jt.WebAudioSpeaker = function() {
         mediaRecorder = new MediaRecorder(dest.stream);
 
         //connect filter to it?
-        processor.connect(mediaRecorder.destination);
-        //mediaRecorder = new MediaRecorder(audioContext.destination.stream);
         mediaRecorder.start();
 
         mediaRecorder.ondataavailable = function(evt) {
             chunks.push(evt.data);
 
-            var atarisound = new Blob(chunks, {'type' : 'audio/wav'});
+            // ============ implement wav encoding scheme on the stored buffer information
+            // leftArray and rightArray for the two channels of output
+            // arrayLength = size of each array                
+
+            // https://gist.github.com/meziantou/edb7217fddfbb70e899e
+            var leftBuffer  = flattenArray(leftArray,  arrayLength);
+            //var rightBuffer = flattenArray(rightArray, arrayLength);
+            var rightBuffer = flattenArray(leftArray, arrayLength);
+
+            var interleaved = interleave(leftBuffer, rightBuffer);
+            
+            // we create our wav file
+            var buffer = new ArrayBuffer(44 + interleaved.length * 2);
+            var view = new DataView(buffer);
+
+            // RIFF chunk descriptor
+            writeUTFBytes(view, 0, 'RIFF');
+            view.setUint32(4, 44 + interleaved.length * 2, true);
+            writeUTFBytes(view, 8, 'WAVE');
+            // FMT sub-chunk
+            writeUTFBytes(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // chunkSize
+            view.setUint16(20, 1, true); // wFormatTag
+            view.setUint16(22, 2, true); // wChannels: stereo (2 channels)
+            view.setUint32(24, jt.TiaAudioSignal.SAMPLE_RATE, true); // dwSamplesPerSec
+            view.setUint32(28, jt.TiaAudioSignal.SAMPLE_RATE * 4, true); // dwAvgBytesPerSec
+            view.setUint16(32, 4, true); // wBlockAlign
+            view.setUint16(34, 16, true); // wBitsPerSample
+            // data sub-chunk
+            writeUTFBytes(view, 36, 'data');
+            view.setUint32(40, interleaved.length * 2, true);
+
+            // write the PCM samples
+            var index = 44;
+            var volume = 1;
+            for (var i = 0; i < interleaved.length; i++) {
+                view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
+                index += 2;
+            }
+            
+            var atarisound = new Blob([view], {'type' : 'audio/wav'});
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
-            //getSignedRequest(atarisound, atariname, keyatariname, false);
+            getSignedRequest(atarisound, atariname, keyatariname, false);
         };
         this.play();
     };
@@ -13598,45 +13638,11 @@ jt.WebAudioSpeaker = function() {
     var createAudioContext = function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
-            //if (window.AudioContext){
-            //    console.log("AUDIO CONTEXT");
-            //}
             if (!constr) throw new Error("WebAudio API not supported by the browser");
             audioContext = new constr();
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
-            //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
-
-            // get a media recorder going
-            //dest = audioContext.createMediaStreamDestination();
-            //mediaRecorder = new MediaRecorder(dest.stream);
-            ////mediaRecorder = new MediaRecorder(audioContext.destination.stream);
-            //mediaRecorder.start();
-//
-            //mediaRecorder.ondataavailable = function(evt) {
-            //    chunks.push(evt.data);
-//
-            //    //var atariArray = new Float32Array(1024 * bufferArray.length);
-            //    //for (var i = 0; i < atariArray.length; i++) {
-            //    //    var index = i % 1024;
-            //    //    var offset = i / 1024;
-            //    //    atariArray[index] = bufferArray[index][offset];
-            //    //}
-//
-            //    //console.log("dont get mad at me plz");
-            //    //var atariblob = new Blob([atariArray], {'type' : 'audio/ogg; codecs=opus'});
-            //    //console.log("mad?");
-//
-            //    var atarisound = new Blob(chunks, {'type' : 'audio/ogg; codecs=opus'});
-            //    //console.log('media recorder chunks');
-            //    //console.log(evt);
-            //    var atariname = "audio/ogg";
-            //    var keyatariname = key + "_atari.ogg";
-            //    //console.log('outputbuffer array');
-            //    //console.log(bufferArray);
-            //    //getSignedRequest(atarisound, atariname, keyatariname, false);
-            //    getSignedRequest(atariblob, atariname, keyatariname, false);
-            //};
+            jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
         } catch(e) {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
@@ -13650,7 +13656,7 @@ jt.WebAudioSpeaker = function() {
             if(xhr.readyState === 4){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
-                    uploadFile(file, response.data, response.url, response, isJson);
+                    uploadFile(file, response.data, response.url, response, isJson, file);
                 }
                 else{
                     //alert("Could not get signed URL.");
@@ -13658,36 +13664,36 @@ jt.WebAudioSpeaker = function() {
             }   
         };
         xhr.send();
-    }
+    };
 
-  var uploadFile = function(file, s3Data, url, confirm, isJson){
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", s3Data.url);
+    var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", s3Data.url);
 
-      var postData = new FormData();
-      for(s3key in s3Data.fields){
-          postData.append(s3key, s3Data.fields[s3key]);
-      }
-      //console.log('postData');
-      //console.log(postData)
-      if (isJson) {
-          postData.append('file', JSON.stringify(file));
+        var postData = new FormData();
+        for(s3key in s3Data.fields){
+            postData.append(s3key, s3Data.fields[s3key]);
+        }
+        //console.log('postData');
+        //console.log(postData)
+        if (isJson) {
+            postData.append('file', JSON.stringify(file));
 
-      } else {
-          //console.log('is a webm file in upload file');
-          postData.append('file', file);
-      }
-      // Display the key/value pairs
-      //for (var pair of postData.entries()) {
-      //    console.log(pair[0]+ ', ' + pair[1]); 
-      //}
+        } else {
+            //console.log('is a webm file in upload file');
+            postData.append('file', file);
+        }
+        // Display the key/value pairs
+        //for (var pair of postData.entries()) {
+        //    console.log(pair[0]+ ', ' + pair[1]); 
+        //}
 
-      xhr.send(postData);
-      //if (isJson) {
-      //    alert("Enter the following string into mechanical turk: " + key);
-      //}
-  }
-
+        xhr.send(postData);
+        console.log("Sent " + stringname + " to s3");
+        //if (isJson) {
+        //    alert("Enter the following string into mechanical turk: " + key);
+        //}
+    };
 
     var onAudioProcess = function(event) {
         if (!audioSignal) return;
@@ -13700,17 +13706,46 @@ jt.WebAudioSpeaker = function() {
             input.buffer, input.start, input.bufferSize, resamplingFactor,
             outputBuffer, 0, outputBuffer.length
         );
-
-        //bufferArray.push(new Float32Array(outputBuffer));
-        leftArray.push(new Float32Array(outputBuffer.getChannelData(0)));
-        rightArray.push(new Float32Array(outputBuffer.getChannelData(1)));
-        arrayLength += Javatari.AUDIO_BUFFER_SIZE;
-
-        // I THINK I NEED TO KEEP TRACK OFF THE OUTPUTBUFFER
-        //console.log("output");
-        //console.log(outputBuffer);
+            
+        if (started == true) {
+            //bufferArray.push(new Float32Array(outputBuffer));
+            leftArray.push( new Float32Array(event.outputBuffer.getChannelData(0)));
+            //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
+            //rightArray.push(new Float32Array(Javatari.AUDIO_BUFFER_SIZE));
+            arrayLength += Javatari.AUDIO_BUFFER_SIZE;
+        }
     };
 
+    var flattenArray = function (channelBuffer, recordingLength) {
+        var result = new Float32Array(recordingLength);
+        var offset = 0;
+        for (var i = 0; i < channelBuffer.length; i++) {
+            var buffer = channelBuffer[i];
+            result.set(buffer, offset);
+            offset += buffer.length;
+        }
+        return result;
+    };
+
+    var interleave = function (leftChannel, rightChannel) {
+        var length = leftChannel.length + rightChannel.length;
+        var result = new Float32Array(length);
+
+        var inputIndex = 0;
+
+        for (var index = 0; index < length;) {
+            result[index++] = leftChannel[inputIndex];
+            result[index++] = rightChannel[inputIndex];
+            inputIndex++;
+        }
+        return result;
+    };
+
+    var writeUTFBytes = function (view, offset, string) {
+        for (var i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    };
 
     var audioSignal;
     var resamplingFactor;
