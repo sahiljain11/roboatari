@@ -74,9 +74,7 @@ var setup_reset_btn = function(but) {
 	if (e.preventDefault) e.preventDefault();
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);
-    if (stream != null)  {
-        Javatari.room.console.resetEnv();
-    }
+    Javatari.room.console.resetEnv();
 	});
 	but.addEventListener("mouseup", function (e) {
 	if (e.preventDefault) e.preventDefault();
@@ -101,9 +99,10 @@ var update_score = function(text) {
     //    break;
     //  }
     //}
-    
-    var ai_text = "MTurk Key: " + text
-    $("#ai-bar-text").html(ai_text);
+    if (enable_ui == true) {
+      var ai_text = "MTurk Key: " + text
+      $("#ai-bar-text").html(ai_text);
+    }
     //ai_percentile = parseInt(100*score/ai_score);
     //if(ai_percentile > 100) {
     //  ai_percentile = 100;

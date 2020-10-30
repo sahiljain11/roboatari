@@ -17,38 +17,37 @@
         <script type="text/javascript"> var traj_id = '{{traj_id}}';</script>
         <script type="text/javascript"> window.Javatari_IMAGES_PATH = '{{ url_for('static',filename='img/') }}';</script>
         <script type="text/javascript"> var ROM_PATH = '{{ url_for('static',filename='roms/') }}';</script>
-        <script src="../static/js/javatari.js"></script>
+        <script src="../static/js/trial_javatari.js"></script>
         <script src="../static/js/ui.js"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}"></style>
     </head>
 
     <script>
+      var enable_ui = false;
+      //var chunks = [];
+      ////var bufferArray = [];
+      //var leftArray = [];
+      //var rightArray = [];
+      //var arrayLength = 0;
 
-      var enable_ui = true;
-      var chunks = [];
-      //var bufferArray = [];
-      var leftArray = [];
-      var rightArray = [];
-      var arrayLength = 0;
+      //var started = false;
 
-      var started = false;
-
-      var finished_uploading = false;
-      var found = false;
-      var mic_enabled = false;
-      let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
-      .then(
-        function(s) {
-          mic_enabled = true;
-        }
-      )
-      .catch(
-        function(err) {
-          stream = null;
-          //replace this with whatever blank url later
-          window.location.replace("/mic");
-        }
-      );
+      //var finished_uploading = false;
+      //var found = false;
+      //var mic_enabled = false;
+      //let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
+      //.then(
+      //  function(s) {
+      //    mic_enabled = true;
+      //  }
+      //)
+      //.catch(
+      //  function(err) {
+      //    stream = null;
+      //    //replace this with whatever blank url later
+      //    window.location.replace("/mic");
+      //  }
+      //);
     </script>
 
     <body>

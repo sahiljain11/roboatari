@@ -13569,10 +13569,10 @@ jt.WebAudioSpeaker = function() {
             // leftArray and rightArray for the two channels of output
             // arrayLength = size of each array                
 
+
             // https://gist.github.com/meziantou/edb7217fddfbb70e899e
             var leftBuffer  = flattenArray(leftArray,  arrayLength);
-            //var rightBuffer = flattenArray(rightArray, arrayLength);
-            var rightBuffer = flattenArray(leftArray, arrayLength);
+            var rightBuffer = flattenArray(leftArray,  arrayLength);
 
             var interleaved = interleave(leftBuffer, rightBuffer);
             

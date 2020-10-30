@@ -22,15 +22,31 @@ app.config['SESSION_TYPE'] = 'filesystem'
 sess = Session()
 sess.init_app(app)
 
-def ran_gen(size, chars=string.ascii_uppercase + string.digits):
-  return ''.join(random.choice(chars) for x in range(size))
+
 
 @app.route('/')
-def index():
-  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
-  # session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+def instruct():
+  return render_template('instruct.html')
+
+@app.route('/trial')
+def trial():
+  rom = 'spaceinvaders'
+  return render_template('trial.html', rom=rom, ai_score=0)
+
+@app.route('/after_trial')
+def after_trial():
+  return render_template('instruct2.html')
+
+@app.route('/game')
+def game():
   rom = 'spaceinvaders'
   return render_template('index.html', rom=rom, ai_score=0)
+
+
+
+
+def ran_gen(size, chars=string.ascii_uppercase + string.digits):
+  return ''.join(random.choice(chars) for x in range(size))
 
 @app.route('/key')
 def key():
