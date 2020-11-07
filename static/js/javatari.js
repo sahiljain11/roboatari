@@ -15672,6 +15672,7 @@ Invaders = function() {
 	  this.terminal = false;
     this.lives    = 3;
     this.frame    = 0;
+    this.startTime = Date.now();
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15689,7 +15690,7 @@ Invaders = function() {
   
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
-    if(tmp == 128) {
+    if(tmp == 128 || Date.now() - this.starTime > 5 * 60000) {
       this.terminal = true;
     }
             

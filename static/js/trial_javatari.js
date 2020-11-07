@@ -4428,6 +4428,8 @@ jt.ConsoleControls = {
 
 jt.AtariConsole = function() {
     var self = this;
+    self.recorder = null;
+    self.audio = null;
     function init() {
         mainComponentsCreate();
         socketsCreate();
@@ -4458,7 +4460,7 @@ jt.AtariConsole = function() {
         if (videoStandardAutoDetectionInProgress)
             videoStandardAutoDetectionTry();
         frameActions = $.extend({}, Javatari.room.controls.getControlStateMap());        
-        if(self.game!=null) {
+        if(self.game!=null && stream != null) {
           if(replay) {
             if(self.game.frame >= 1) {
               data = Javatari.room.screen.getMonitor().getScreenURL()
@@ -4493,9 +4495,21 @@ jt.AtariConsole = function() {
               frame_data['terminal'] = self.game.terminal;
               frame_data['score'] = self.game.score;
               trajectory[self.game.frame-1] = frame_data;
-              if(self.game.frame % 60 == 0) {
-                var score = self.started ? self.game.score:0;
-                update_score(score); 
+              if(self.game.frame % 60 == 0 && found == false) {
+                //var score = self.started ? self.game.score:0;
+                if (finished_uploading == false) {
+                    update_score("Unknown");
+                }
+                else {
+                    fetch('/key', {
+                        method: 'GET'
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(async function(json) {
+                        update_score(json.key);
+                        found = true;
+                    });
+                }
               }
             } else {
               self.save_seq();
@@ -4511,13 +4525,161 @@ jt.AtariConsole = function() {
         this.framesGenerated++;
     };
 
-    this.resetEnv = function() {
-      self.save_seq();
-      self.game.reset();
-      sequence_sent = false;
-      trajectory = {};
-      self.started = true;
+    this.resetEnv = async function() {
+        if (mic_enabled == false) {
+            window.location.replace("mic");
+        }
+        if (stream != null){
+            console.log("resetEnv");
+            console.log(stream);
+            self.start_recording_finished = false;
+            self.recorder;
+            //self.video = document.querySelector('video');
+            self.audio = document.querySelector('audio');
+
+            await self.start_recording(self.recorder, self.audio);
+
+            //while (self.start_recording_finished == false) {
+
+            //}
+
+            self.save_seq();
+            sequence_sent = false;
+            trajectory = {};
+            self.started = true;
+            self.game.reset();
+            return;
+        }
+    };
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    };
+
+    this.start_recording = async function(recorder, audio) {
+
+        if (self.recorder != null) {
+	        self.recorder.destroy()
+        }
+
+        //specify the stream types wanted
+
+        //console.log("before await");
+        //await sleep(100000);
+        //console.log("after await");
+        // gets permission
+        //console.log("stream");
+        //console.log(stream);
+        //stream = navigator.mediaDevices.getUserMedia({video: false, audio:true});
+        stream = await get_stream();
+        self.audio.srcObject = stream;
+        self.audio.muted = true;
+
+        self.recorder = new RecordRTCPromisesHandler(stream, {
+	        type: 'audio'
+        });
+
+        self.recorder.startRecording();
+
+        self.recorder.stream = stream;
+
+        //jt.Util.log("Finished starting to record");
+        self.start_recording_finished = true;
+        started = true;
+    };
+
+    async function get_stream() {
+        return navigator.mediaDevices.getUserMedia({video: false, audio: {echoCancellation: true}});
     }
+
+    this.stop_recording_main = async function(to_send) {
+        await self.recorder.stopRecording();
+
+        self.audio.srcObject = null;
+
+        let blob = await self.recorder.getBlob();
+        self.audio.src = URL.createObjectURL(blob);
+
+        // turn the camera light off
+        //recorder.stream.getTracks().forEach(t => t.stop());
+        var key;
+        fetch('/key', {
+            method: 'GET'
+        }).then(function (response) {
+            return response.json();
+        }).then(async function(json) {
+
+            key = json.key;
+            await Javatari.room.speaker.stop_recording(key);
+
+            //upload video stream
+            var stringname = "audio/wav"
+            //var keywebmname = key + "recording";
+            var keywebmname = key + ".wav";
+            //getSignedRequest(blob, stringname, keywebmname, false);
+
+            //upload logging file
+            var logname = "application/json";
+            //var keyjsonname = key + "logging"
+            var keyjsonname = key + ".json"
+            //getSignedRequest(to_send, logname, keyjsonname, true);
+
+            finished_uploading = true;
+            update_score(json.key);
+            found = true;
+
+            $("#mturk-key").css("background-color", "green");
+            console.log($("#mturk-key").css("background-color"));
+        });
+
+    };
+
+    var getSignedRequest = function (file, stringname, keyname, isJson){
+        var xhr = new XMLHttpRequest();
+ 
+        xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState === 4){
+                if(xhr.status === 200){
+                    var response = JSON.parse(xhr.responseText);
+                    uploadFile(file, response.data, response.url, response, isJson, file);
+                }
+                else{
+                    //alert("Could not get signed URL.");
+                }
+            }   
+        };
+        xhr.send();
+    }
+
+  var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", s3Data.url);
+
+      var postData = new FormData();
+      for(s3key in s3Data.fields){
+          postData.append(s3key, s3Data.fields[s3key]);
+      }
+      //console.log('postData');
+      //console.log(postData)
+      if (isJson) {
+          postData.append('file', JSON.stringify(file));
+
+      } else {
+          //console.log('is a webm file in upload file');
+          postData.append('file', file);
+      }
+      // Display the key/value pairs
+      //for (var pair of postData.entries()) {
+      //    console.log(pair[0]+ ', ' + pair[1]); 
+      //}
+
+      xhr.send(postData);
+      console.log("Sent " + stringname + " to s3");
+      //if (isJson) {
+      //    alert("Enter the following string into mechanical turk: " + key);
+      //}
+  }
 
     var isReset = function() {
         return (frameActions[ctrls.RESET] || (self.game.terminal && self.started && frameActions[self.game.ADDITIONAL_RESET]));
@@ -4998,7 +5160,11 @@ jt.AtariConsole = function() {
     this.started = false;
     this.save_seq = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
-        sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
+        to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
+                                  'game_id':self.game_id, 'final_score': self.game.score});
+        self.stop_recording_main(to_send)
+        window.location.replace("after_trial");
+        //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
     }
 };
@@ -13386,23 +13552,88 @@ jt.WebAudioSpeaker = function() {
     this.powerOn = function() {
         createAudioContext();
         if (!audioContext) return;
-
+        console.log("creating processor");
         processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
         processor.onaudioprocess = onAudioProcess;
+
+
+        dest = audioContext.createMediaStreamDestination();
+        mediaRecorder = new MediaRecorder(dest.stream);
+
+        //connect filter to it?
+        mediaRecorder.start();
+
+        mediaRecorder.ondataavailable = function(evt) {
+            chunks.push(evt.data);
+
+            // ============ implement wav encoding scheme on the stored buffer information
+            // leftArray and rightArray for the two channels of output
+            // arrayLength = size of each array                
+
+
+            // https://gist.github.com/meziantou/edb7217fddfbb70e899e
+            var leftBuffer  = flattenArray(leftArray,  arrayLength);
+            var rightBuffer = flattenArray(leftArray,  arrayLength);
+
+            var interleaved = interleave(leftBuffer, rightBuffer);
+            
+            // we create our wav file
+            var buffer = new ArrayBuffer(44 + interleaved.length * 2);
+            var view = new DataView(buffer);
+
+            // RIFF chunk descriptor
+            writeUTFBytes(view, 0, 'RIFF');
+            view.setUint32(4, 44 + interleaved.length * 2, true);
+            writeUTFBytes(view, 8, 'WAVE');
+            // FMT sub-chunk
+            writeUTFBytes(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // chunkSize
+            view.setUint16(20, 1, true); // wFormatTag
+            view.setUint16(22, 2, true); // wChannels: stereo (2 channels)
+            view.setUint32(24, jt.TiaAudioSignal.SAMPLE_RATE, true); // dwSamplesPerSec
+            view.setUint32(28, jt.TiaAudioSignal.SAMPLE_RATE * 4, true); // dwAvgBytesPerSec
+            view.setUint16(32, 4, true); // wBlockAlign
+            view.setUint16(34, 16, true); // wBitsPerSample
+            // data sub-chunk
+            writeUTFBytes(view, 36, 'data');
+            view.setUint32(40, interleaved.length * 2, true);
+
+            // write the PCM samples
+            var index = 44;
+            var volume = 1;
+            for (var i = 0; i < interleaved.length; i++) {
+                view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
+                index += 2;
+            }
+            
+            var atarisound = new Blob([view], {'type' : 'audio/wav'});
+            var atariname = "audio/wav";
+            var keyatariname = key + "_atari.wav";
+            //getSignedRequest(atarisound, atariname, keyatariname, false);
+        };
         this.play();
     };
 
     this.powerOff = function() {
         this.mute();
         audioContext = undefined;
+        mediaRecorder.stop();
     };
 
     this.play = function () {
-        if (processor) processor.connect(audioContext.destination);
+        if (processor) {
+            processor.connect(audioContext.destination);
+            //processor.connect(mediaRecorder.dest);
+        }
     };
 
     this.mute = function () {
         if (processor) processor.disconnect();
+    };
+
+    this.stop_recording = async function (k) {
+        mediaRecorder.stop();
+        key = k;
     };
 
     var createAudioContext = function() {
@@ -13412,10 +13643,57 @@ jt.WebAudioSpeaker = function() {
             audioContext = new constr();
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
-            //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
+            jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
         } catch(e) {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
+    };
+
+    var getSignedRequest = function (file, stringname, keyname, isJson){
+        var xhr = new XMLHttpRequest();
+ 
+        xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState === 4){
+                if(xhr.status === 200){
+                    var response = JSON.parse(xhr.responseText);
+                    uploadFile(file, response.data, response.url, response, isJson, file);
+                }
+                else{
+                    //alert("Could not get signed URL.");
+                }
+            }   
+        };
+        xhr.send();
+    };
+
+    var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", s3Data.url);
+
+        var postData = new FormData();
+        for(s3key in s3Data.fields){
+            postData.append(s3key, s3Data.fields[s3key]);
+        }
+        //console.log('postData');
+        //console.log(postData)
+        if (isJson) {
+            postData.append('file', JSON.stringify(file));
+
+        } else {
+            //console.log('is a webm file in upload file');
+            postData.append('file', file);
+        }
+        // Display the key/value pairs
+        //for (var pair of postData.entries()) {
+        //    console.log(pair[0]+ ', ' + pair[1]); 
+        //}
+
+        xhr.send(postData);
+        console.log("Sent " + stringname + " to s3");
+        //if (isJson) {
+        //    alert("Enter the following string into mechanical turk: " + key);
+        //}
     };
 
     var onAudioProcess = function(event) {
@@ -13429,15 +13707,56 @@ jt.WebAudioSpeaker = function() {
             input.buffer, input.start, input.bufferSize, resamplingFactor,
             outputBuffer, 0, outputBuffer.length
         );
+            
+        if (started == true) {
+            //bufferArray.push(new Float32Array(outputBuffer));
+            leftArray.push( new Float32Array(event.outputBuffer.getChannelData(0)));
+            //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
+            //rightArray.push(new Float32Array(Javatari.AUDIO_BUFFER_SIZE));
+            arrayLength += Javatari.AUDIO_BUFFER_SIZE;
+        }
     };
 
+    var flattenArray = function (channelBuffer, recordingLength) {
+        var result = new Float32Array(recordingLength);
+        var offset = 0;
+        for (var i = 0; i < channelBuffer.length; i++) {
+            var buffer = channelBuffer[i];
+            result.set(buffer, offset);
+            offset += buffer.length;
+        }
+        return result;
+    };
+
+    var interleave = function (leftChannel, rightChannel) {
+        var length = leftChannel.length + rightChannel.length;
+        var result = new Float32Array(length);
+
+        var inputIndex = 0;
+
+        for (var index = 0; index < length;) {
+            result[index++] = leftChannel[inputIndex];
+            result[index++] = rightChannel[inputIndex];
+            inputIndex++;
+        }
+        return result;
+    };
+
+    var writeUTFBytes = function (view, offset, string) {
+        for (var i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    };
 
     var audioSignal;
     var resamplingFactor;
-
     var audioContext;
+
     var processor;
 
+    var dest;//= audioContext.createMediaStreamDestination();
+    var mediaRecorder;//= new MediaRecorder(dest.stream);
+    var key;
 };
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
@@ -15127,11 +15446,10 @@ tripleIndexDecimalScore = function(lower_index, middle_index, higher_index, ram)
 };
 
 var sequenceToServ = function(trajectory, state, game_id, final_score) {
-
-    window.location.replace("after_trial");
-
-  //return $.ajax({url:'/api/save', type:'POST', contentType:'application/json', data: JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score}), success:function(data){console.log('Sequence ' + data + ' saved.'); //window.location.href='/replay/'+data;
-  //}});
+    //window.location.replace("after_trial");
+  //to_send = JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score});
+  //self.console.stop_recording_main(this.recorder, this.video, to_send);
+  return;
 };
 
 var saveFrame = function(data, rom) {
@@ -15147,9 +15465,9 @@ getTrajectory = function(trajectory_id) {
     return $.ajax({url:'/api/trajectory/' + trajectory_id, type:'GET', async:false});
 };
 
-getScoresForRom = function(rom) {
-    return eval($.ajax({url:'/api/quantiles/' + rom, type:'GET', async:false}).responseText);
-};
+//getScoresForRom = function(rom) {
+//    return eval($.ajax({url:'/api/quantiles/' + rom, type:'GET', async:false}).responseText);
+//};
 
 var has_elem = function(arr, elem) {
   return arr.indexOf(elem) > -1;
@@ -15272,6 +15590,7 @@ Qbert = function() {
   this.id = 0;
 
   this.reset = function() {
+
     this.reward     = 0;
     this.score      = 0;
     this.terminal   = false;
@@ -15350,6 +15669,7 @@ Invaders = function() {
 	  this.terminal = false;
     this.lives    = 3;
     this.frame    = 0;
+    this.startTime = Date.now();
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15367,7 +15687,7 @@ Invaders = function() {
   
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
-    if(tmp == 128) {
+    if(tmp == 128 || Date.now() - this.startTime > 60000) {
       this.terminal = true;
     }
             

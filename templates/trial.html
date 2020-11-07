@@ -24,30 +24,30 @@
 
     <script>
       var enable_ui = false;
-      //var chunks = [];
-      ////var bufferArray = [];
-      //var leftArray = [];
-      //var rightArray = [];
-      //var arrayLength = 0;
+      var chunks = [];
+      //var bufferArray = [];
+      var leftArray = [];
+      var rightArray = [];
+      var arrayLength = 0;
 
-      //var started = false;
+      var started = false;
 
-      //var finished_uploading = false;
-      //var found = false;
-      //var mic_enabled = false;
-      //let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
-      //.then(
-      //  function(s) {
-      //    mic_enabled = true;
-      //  }
-      //)
-      //.catch(
-      //  function(err) {
-      //    stream = null;
-      //    //replace this with whatever blank url later
-      //    window.location.replace("/mic");
-      //  }
-      //);
+      var finished_uploading = false;
+      var found = false;
+      var mic_enabled = false;
+      let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
+      .then(
+        function(s) {
+          mic_enabled = true;
+        }
+      )
+      .catch(
+        function(err) {
+          stream = null;
+          //replace this with whatever blank url later
+          window.location.replace("/mic");
+        }
+      );
     </script>
 
     <body>
