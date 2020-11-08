@@ -6,8 +6,8 @@
 * Flask session
 
 ```bash
-pip install Flask
-pip install Flask-Session
+$ pip install Flask
+$ pip install Flask-Session
 ```
 
 ###  Heroku App

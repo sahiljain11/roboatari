@@ -28,6 +28,11 @@ sess.init_app(app)
 def instruct():
   return render_template('instruct.html')
 
+# both do the same thing. functionally the same, but I needed another for a href call in JS
+@app.route('/start')
+def start():
+  return render_template('instruct.html')
+
 @app.route('/trial')
 def trial():
   rom = 'spaceinvaders'
