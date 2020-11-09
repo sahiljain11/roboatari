@@ -4616,25 +4616,32 @@ jt.AtariConsole = function() {
             var stringname = "audio/wav"
             //var keywebmname = key + "recording";
             var keywebmname = key + ".wav";
-            getSignedRequest(blob, stringname, keywebmname, false);
+            await getSignedRequest(blob, stringname, keywebmname, false);
+            numUploaded += 1;
 
             //upload logging file
             var logname = "application/json";
             //var keyjsonname = key + "logging"
             var keyjsonname = key + ".json"
-            getSignedRequest(to_send, logname, keyjsonname, true);
+            await getSignedRequest(to_send, logname, keyjsonname, true);
+            numUploaded += 1;
 
             finished_uploading = true;
             update_score(json.key);
             found = true;
 
-            $("#mturk-key").css("background-color", "green");
-            console.log($("#mturk-key").css("background-color"));
+            if (numUploaded == 3) {
+                await new Promise(r => setTimeout(r, 5000));
+                window.location.replace("/last/" + key);
+            }
+
+            //$("#mturk-key").css("background-color", "green");
+            //console.log($("#mturk-key").css("background-color"));
         });
 
     };
 
-    var getSignedRequest = function (file, stringname, keyname, isJson){
+    var getSignedRequest = async function (file, stringname, keyname, isJson){
         var xhr = new XMLHttpRequest();
  
         xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
@@ -4652,7 +4659,7 @@ jt.AtariConsole = function() {
         xhr.send();
     }
 
-  var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
+  var uploadFile = async function(file, s3Data, url, confirm, isJson, stringname){
       var xhr = new XMLHttpRequest();
       xhr.open("POST", s3Data.url);
 
@@ -13562,7 +13569,7 @@ jt.WebAudioSpeaker = function() {
         //connect filter to it?
         mediaRecorder.start();
 
-        mediaRecorder.ondataavailable = function(evt) {
+        mediaRecorder.ondataavailable = async function(evt) {
             chunks.push(evt.data);
 
             // ============ implement wav encoding scheme on the stored buffer information
@@ -13608,7 +13615,13 @@ jt.WebAudioSpeaker = function() {
             var atarisound = new Blob([view], {'type' : 'audio/wav'});
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
-            getSignedRequest(atarisound, atariname, keyatariname, false);
+            await getSignedRequest(atarisound, atariname, keyatariname, false);
+            numUploaded += 1;
+
+            if (numUploaded == 3) {
+                await new Promise(r => setTimeout(r, 5000));
+                window.location.replace("/last/" + key);
+            }
         };
         this.play();
     };
@@ -13648,7 +13661,7 @@ jt.WebAudioSpeaker = function() {
         }
     };
 
-    var getSignedRequest = function (file, stringname, keyname, isJson){
+    var getSignedRequest = async function (file, stringname, keyname, isJson){
         var xhr = new XMLHttpRequest();
  
         xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
@@ -13666,7 +13679,7 @@ jt.WebAudioSpeaker = function() {
         xhr.send();
     };
 
-    var uploadFile = function(file, s3Data, url, confirm, isJson, stringname){
+    var uploadFile = async function(file, s3Data, url, confirm, isJson, stringname){
         var xhr = new XMLHttpRequest();
         xhr.open("POST", s3Data.url);
 

@@ -42,6 +42,10 @@ def trial():
 def after_trial():
   return render_template('instruct2.html')
 
+@app.route('/last/<key>')
+def last(key):
+  return render_template('last.html', key=key)
+
 @app.route('/game')
 def game():
   rom = 'spaceinvaders'

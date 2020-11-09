@@ -100,7 +100,7 @@ var update_score = function(text) {
     //  }
     //}
     if (enable_ui == true) {
-      var ai_text = "MTurk Key: " + text
+      var ai_text = "Loading...";
       $("#ai-bar-text").html(ai_text);
     }
     //ai_percentile = parseInt(100*score/ai_score);
