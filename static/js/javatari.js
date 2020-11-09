@@ -21,7 +21,8 @@ Javatari = {
     SCREEN_OPENING_SIZE:            2,                          // 1 .. 4
     SCREEN_CONTROL_BAR:             0,                          // 0 = Always, 1 = Hover, 2 = Original Javatari
     SCREEN_NATURAL_FPS:             60,                         // 60, 50 fps
-    AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    //AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
     IMAGES_PATH:                    window.Javatari_IMAGES_PATH || "static/img/"
 
 };
@@ -2685,7 +2686,8 @@ jt.TiaAudioSignal = function() {
 
 };
 
-jt.TiaAudioSignal.SAMPLE_RATE = 31440;
+//jt.TiaAudioSignal.SAMPLE_RATE = 31440;
+jt.TiaAudioSignal.SAMPLE_RATE = 44100;
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
 
@@ -13558,10 +13560,8 @@ jt.WebAudioSpeaker = function() {
     this.powerOn = function() {
         createAudioContext();
         if (!audioContext) return;
-        console.log("creating processor");
         processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
         processor.onaudioprocess = onAudioProcess;
-
 
         dest = audioContext.createMediaStreamDestination();
         mediaRecorder = new MediaRecorder(dest.stream);
@@ -13578,8 +13578,8 @@ jt.WebAudioSpeaker = function() {
 
 
             // https://gist.github.com/meziantou/edb7217fddfbb70e899e
-            var leftBuffer  = flattenArray(leftArray,  arrayLength);
-            var rightBuffer = flattenArray(leftArray,  arrayLength);
+            var leftBuffer  = flattenArray(leftArray, arrayLength);
+            var rightBuffer = flattenArray(leftArray, arrayLength);
 
             var interleaved = interleave(leftBuffer, rightBuffer);
             
