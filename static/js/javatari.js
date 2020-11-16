@@ -22,7 +22,7 @@ Javatari = {
     SCREEN_CONTROL_BAR:             0,                          // 0 = Always, 1 = Hover, 2 = Original Javatari
     SCREEN_NATURAL_FPS:             60,                         // 60, 50 fps
     //AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
-    AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    AUDIO_BUFFER_SIZE:              256,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
     IMAGES_PATH:                    window.Javatari_IMAGES_PATH || "static/img/"
 
 };
