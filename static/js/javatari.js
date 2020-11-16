@@ -4584,10 +4584,10 @@ jt.AtariConsole = function() {
         self.recorder.startRecording();
 
         self.recorder.stream = stream;
+        started = true;
 
         //jt.Util.log("Finished starting to record");
         self.start_recording_finished = true;
-        started = true;
     };
 
     async function get_stream() {
@@ -5171,6 +5171,7 @@ jt.AtariConsole = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score});
+        started = false;
         self.stop_recording_main(to_send)
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
