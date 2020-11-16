@@ -15712,6 +15712,7 @@ Invaders = function() {
     this.terminal = tmp || this.lives == 0;
     if(tmp == 128 || Date.now() - this.starTime > 5 * 60000) {
       this.terminal = true;
+      started = false;
     }
             
     this.frame++;
