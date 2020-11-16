@@ -5169,9 +5169,9 @@ jt.AtariConsole = function() {
     this.started = false;
     this.save_seq = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
+        started = false;
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score});
-        started = false;
         self.stop_recording_main(to_send)
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
@@ -13722,11 +13722,17 @@ jt.WebAudioSpeaker = function() {
         );
             
         if (started == true) {
-            //bufferArray.push(new Float32Array(outputBuffer));
-            leftArray.push( new Float32Array(event.outputBuffer.getChannelData(0)));
-            //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
-            //rightArray.push(new Float32Array(Javatari.AUDIO_BUFFER_SIZE));
-            arrayLength += Javatari.AUDIO_BUFFER_SIZE;
+            if (started_atari == false) {
+                // skip this one since it's the first
+                started_atari = true;
+            }
+            else {
+                //bufferArray.push(new Float32Array(outputBuffer));
+                leftArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
+                //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
+                //rightArray.push(new Float32Array(Javatari.AUDIO_BUFFER_SIZE));
+                arrayLength += Javatari.AUDIO_BUFFER_SIZE;
+            }
         }
     };
 
