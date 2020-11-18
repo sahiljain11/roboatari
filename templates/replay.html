@@ -1,0 +1,72 @@
+<DOCTYPE html>
+<html>
+
+<!-- Yandex.Metrika counter --> <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter41793274 = new Ya.Metrika({ id:41793274, clickmap:true, trackLinks:true, accurateTrackBounce:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/41793274" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
+    <!audio width="300" height="300" id="my-preview" class="my-preview" autoplay muted></audio>
+    <div><audio controls autoplay playsinline hidden></audio></div>
+
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>RoboAtari</title>
+        <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+        <script type="text/javascript" 
+                src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script type="text/javascript"> var replay = '{{replay}}'==='True';</script>
+        <script type="text/javascript"> var rom = '{{rom}}';</script>
+        <script type="text/javascript"> var ai_score = parseInt('{{ai_score}}');</script>
+        <script type="text/javascript"> var traj_id = '{{traj_id}}';</script>
+        <script type="text/javascript"> window.Javatari_IMAGES_PATH = '{{ url_for('static',filename='img/') }}';</script>
+        <script type="text/javascript"> var ROM_PATH = '{{ url_for('static',filename='roms/') }}';</script>
+        <script src="../static/js/replayatari.js"></script>
+        <script src="../static/js/ui.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}"></style>
+    </head>
+
+    <script>
+      var sound1 = new sound("../static/sound/" + traj_id + ".wav", false);
+      var sound2 = new sound("../static/sound/" + traj_id + "_atari.wav", false);
+
+      function sound(src, loop) {
+          this.sound = document.createElement("audio");
+          this.sound.src = src;
+          this.sound.setAttribute("preload", "auto");
+          this.sound.setAttribute("controls", "none");
+          this.sound.style.display = "none";
+          this.sound.loop = loop;
+          document.body.appendChild(this.sound);
+          this.play = function(){
+	            this.sound.play();
+          }
+          this.stop = function(){
+	            this.sound.pause();
+          }
+      } 
+
+    </script>
+
+    <body>
+      <div class="main-block-game">
+      <br>
+      <div class="parent">
+        <div class="right">
+          <div class="score" id="mturk-key">
+            <span id="ai-bar-text"></span>
+          </div>
+          <div id="controls">
+            <h2>Controls</h3>
+            <div id="game-desc"></div>
+          </div>
+        </div>
+        <div id="javatari-screen"></div>
+        <div>
+          <div id="reset">Start new game (or press F12)<br/></div>
+          <!div id="sound-btn"></div>
+        </div>
+      </div>
+    <div id="footer">
+      <p>This was created from the AtariGrandChallenge repository created by yobibyte on The Grand Atari Challenge Dataset paper.</p>
+      <p>Java, Atari and Video Computer System are trademarks of their respective owners.</p>
+    </div>
+    </body>
+
+</html>

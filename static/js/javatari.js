@@ -21,8 +21,8 @@ Javatari = {
     SCREEN_OPENING_SIZE:            2,                          // 1 .. 4
     SCREEN_CONTROL_BAR:             0,                          // 0 = Always, 1 = Hover, 2 = Original Javatari
     SCREEN_NATURAL_FPS:             60,                         // 60, 50 fps
-    //AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
-    AUDIO_BUFFER_SIZE:              256,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    //AUDIO_BUFFER_SIZE:             1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
     IMAGES_PATH:                    window.Javatari_IMAGES_PATH || "static/img/"
 
 };
@@ -15476,12 +15476,11 @@ var sequenceToServ = function(trajectory, state, game_id, final_score) {
 };
 
 var saveFrame = function(data, rom) {
-   return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_frame",  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'], 'height':data['height'], 'rom':rom}), async:false});
+   //return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_frame",  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'], 'height':data['height'], 'rom':rom}), async:false});
 };
 
 var saveReplayTrajectory = function(data, rom, seqid) {
-   return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_trajectory",  data: JSON.stringify({'trajectory': data, 'rom':rom, 'seqid':seqid}), async:false});
-
+   //return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_trajectory",  data: JSON.stringify({'trajectory': data, 'rom':rom, 'seqid':seqid}), async:false});
 }
 
 getTrajectory = function(trajectory_id) {

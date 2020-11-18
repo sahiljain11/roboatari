@@ -104,5 +104,31 @@ def api_save():
   store = request.get_json()
   return "finished"
 
+### replay stuff
+@app.route('/replay/<traj_id>')
+def replay(traj_id):
+  return render_template('replay.html', replay=True, traj_id = traj_id)
+
+@app.route('/api/trajectory/<trajectory_id>')
+def get_trajectory(trajectory_id):
+  rom = 'spaceinvaders'
+  path = os.path.abspath(os.getcwd()) + "/" + trajectory_id + ".json"
+
+  with open(path) as f:
+    data = json.load(f)
+
+  data = json.loads(data)
+  #return jsonify(**{'trajectory':json.loads(traj.actions), 'init_state':json.loads(traj.init_state), 'seqid':traj.id})
+  #return jsonify(**{'trajectory': data[0]["trajectory\""], 'init_state': data[0]["init_state"]})
+  return jsonify(data)
+
+@app.route('/api/save_trajectory', methods=['POST'])
+def save_trajectory():
+  return 'sequence saved', 200
+
+@app.route('/api/save_frame', methods=['POST'])
+def save_frame():
+  return 'screenshot saved', 200
+
 if __name__ == "__main__":
   app.run()
