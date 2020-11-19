@@ -4510,6 +4510,7 @@ jt.AtariConsole = function() {
                     }).then(async function(json) {
                         update_score(json.key);
                         found = true;
+                        key = json.key;
                     });
                 }
               }
@@ -4595,12 +4596,6 @@ jt.AtariConsole = function() {
     }
 
     this.stop_recording_main = async function(to_send) {
-        await self.recorder.stopRecording();
-
-        self.audio.srcObject = null;
-
-        let blob = await self.recorder.getBlob();
-        self.audio.src = URL.createObjectURL(blob);
 
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
@@ -4610,6 +4605,12 @@ jt.AtariConsole = function() {
         }).then(function (response) {
             return response.json();
         }).then(async function(json) {
+            await self.recorder.stopRecording();
+
+            self.audio.srcObject = null;
+
+            let blob = await self.recorder.getBlob();
+            self.audio.src = URL.createObjectURL(blob);
 
             key = json.key;
             await Javatari.room.speaker.stop_recording(key);
