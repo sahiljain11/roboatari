@@ -4627,16 +4627,6 @@ jt.AtariConsole = function() {
             //var keyjsonname = key + "logging"
             var keyjsonname = key + ".json"
             await getSignedRequest(to_send, logname, keyjsonname, true);
-            numUploaded += 1;
-
-            finished_uploading = true;
-            update_score(json.key);
-            found = true;
-
-            if (numUploaded == 3) {
-                await new Promise(r => setTimeout(r, 5000));
-                window.location.replace("/last/" + key);
-            }
 
             //$("#mturk-key").css("background-color", "green");
             //console.log($("#mturk-key").css("background-color"));
@@ -4685,7 +4675,19 @@ jt.AtariConsole = function() {
       //}
 
       xhr.send(postData);
-      console.log("Sent " + stringname + " to s3");
+      if (xhr.status == 200) {
+            console.log("Sent " + stringname + " to s3");
+            numUploaded += 1;
+
+            finished_uploading = true;
+            update_score(json.key);
+            found = true;
+
+            if (numUploaded == 3) {
+                await new Promise(r => setTimeout(r, 5000));
+                window.location.replace("/last/" + key);
+            }
+      }
       //if (isJson) {
       //    alert("Enter the following string into mechanical turk: " + key);
       //}
@@ -13618,12 +13620,6 @@ jt.WebAudioSpeaker = function() {
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
             await getSignedRequest(atarisound, atariname, keyatariname, false);
-            numUploaded += 1;
-
-            if (numUploaded == 3) {
-                await new Promise(r => setTimeout(r, 5000));
-                window.location.replace("/last/" + key);
-            }
         };
         this.play();
     };
@@ -13704,7 +13700,15 @@ jt.WebAudioSpeaker = function() {
         //}
 
         xhr.send(postData);
-        console.log("Sent " + stringname + " to s3");
+        if (xhr.status == 200) {
+            console.log("Sent " + stringname + " to s3");
+            numUploaded += 1;
+
+            if (numUploaded == 3) {
+                await new Promise(r => setTimeout(r, 5000));
+                window.location.replace("/last/" + key);
+            }
+        }
         //if (isJson) {
         //    alert("Enter the following string into mechanical turk: " + key);
         //}
