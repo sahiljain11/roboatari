@@ -13733,6 +13733,7 @@ jt.WebAudioSpeaker = function() {
                 started_atari = true;
             }
             else {
+                console.log("pushing");
                 //bufferArray.push(new Float32Array(outputBuffer));
                 leftArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
                 //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
