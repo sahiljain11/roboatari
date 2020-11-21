@@ -13574,12 +13574,11 @@ jt.WebAudioSpeaker = function() {
         mediaRecorder.start();
 
         mediaRecorder.ondataavailable = async function(evt) {
-            chunks.push(evt.data);
+            //chunks.push(evt.data);
 
             // ============ implement wav encoding scheme on the stored buffer information
             // leftArray and rightArray for the two channels of output
-            // arrayLength = size of each array                
-
+            // arrayLength = size of each array
 
             // https://gist.github.com/meziantou/edb7217fddfbb70e899e
             var leftBuffer  = flattenArray(leftArray, arrayLength);
@@ -13617,6 +13616,7 @@ jt.WebAudioSpeaker = function() {
             }
             
             var atarisound = new Blob([view], {'type' : 'audio/wav'});
+            console.log(atarisound);
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
             await getSignedRequest(atarisound, atariname, keyatariname, false);
