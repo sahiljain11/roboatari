@@ -13617,6 +13617,7 @@ jt.WebAudioSpeaker = function() {
             
             var atarisound = new Blob([view], {'type' : 'audio/wav'});
             console.log(atarisound);
+            console.log(leftArray.length);
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
             await getSignedRequest(atarisound, atariname, keyatariname, false);
