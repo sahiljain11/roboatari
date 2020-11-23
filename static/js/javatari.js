@@ -4674,20 +4674,23 @@ jt.AtariConsole = function() {
       //    console.log(pair[0]+ ', ' + pair[1]); 
       //}
 
-      xhr.send(postData);
-      if (xhr.status == 200) {
-            console.log("Sent " + stringname + " to s3");
-            numUploaded += 1;
+      xhr.onload = async function () {
+            if (xhr.status == 200) {
+                  console.log("Sent " + stringname + " to s3");
+                  numUploaded += 1;
 
-            finished_uploading = true;
-            update_score(json.key);
-            found = true;
+                  finished_uploading = true;
+                  update_score(json.key);
+                  found = true;
 
-            if (numUploaded == 3) {
-                await new Promise(r => setTimeout(r, 5000));
-                //window.location.replace("/last/" + key);
+                  if (numUploaded == 3) {
+                      await new Promise(r => setTimeout(r, 5000));
+                      //window.location.replace("/last/" + key);
+                  }
             }
       }
+
+      xhr.send(postData);
       //if (isJson) {
       //    alert("Enter the following string into mechanical turk: " + key);
       //}
@@ -13651,7 +13654,7 @@ jt.WebAudioSpeaker = function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
             if (!constr) throw new Error("WebAudio API not supported by the browser");
-            audioContext = new constr();
+            audioContext = new AudioContext({sampleRate : 44100});
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
             jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
@@ -13699,17 +13702,23 @@ jt.WebAudioSpeaker = function() {
         //for (var pair of postData.entries()) {
         //    console.log(pair[0]+ ', ' + pair[1]); 
         //}
+        xhr.onload = async function () {
+            if (xhr.status == 200) {
+                  console.log("Sent " + stringname + " to s3");
+                  numUploaded += 1;
 
-        xhr.send(postData);
-        if (xhr.status == 200) {
-            console.log("Sent " + stringname + " to s3");
-            numUploaded += 1;
+                  finished_uploading = true;
+                  update_score(json.key);
+                  found = true;
 
-            if (numUploaded == 3) {
-                await new Promise(r => setTimeout(r, 5000));
-                //window.location.replace("/last/" + key);
+                  if (numUploaded == 3) {
+                      await new Promise(r => setTimeout(r, 5000));
+                      //window.location.replace("/last/" + key);
+                  }
             }
         }
+
+        xhr.send(postData);
         //if (isJson) {
         //    alert("Enter the following string into mechanical turk: " + key);
         //}
