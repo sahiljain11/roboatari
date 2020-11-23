@@ -13409,7 +13409,7 @@ jt.WebAudioSpeaker = function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
             if (!constr) throw new Error("WebAudio API not supported by the browser");
-            audioContext = new constr();
+            audioContext = new AudioContext({sampleRate : 44100});
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
             //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));

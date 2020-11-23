@@ -1,4 +1,4 @@
-// Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
+//// Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
 
 // Main Emulator parameters.
 // You may change any of these after loading the project and before starting the Emulator
@@ -4500,7 +4500,7 @@ jt.AtariConsole = function() {
               if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
                 if (finished_uploading == false) {
-                    update_score("Unknown");
+                    //update_score("Unknown");
                 }
                 else {
                     fetch('/key', {
@@ -4508,7 +4508,7 @@ jt.AtariConsole = function() {
                     }).then(function (response) {
                         return response.json();
                     }).then(async function(json) {
-                        update_score(json.key);
+                        //update_score(json.key);
                         found = true;
                         key = json.key;
                     });
@@ -4533,8 +4533,6 @@ jt.AtariConsole = function() {
             window.location.replace("mic");
         }
         if (stream != null){
-            console.log("resetEnv");
-            console.log(stream);
             self.start_recording_finished = false;
             self.recorder;
             //self.video = document.querySelector('video');
@@ -4560,19 +4558,11 @@ jt.AtariConsole = function() {
     };
 
     this.start_recording = async function(recorder, audio) {
-
         if (self.recorder != null) {
 	        self.recorder.destroy()
         }
 
         //specify the stream types wanted
-
-        //console.log("before await");
-        //await sleep(100000);
-        //console.log("after await");
-        // gets permission
-        //console.log("stream");
-        //console.log(stream);
         //stream = navigator.mediaDevices.getUserMedia({video: false, audio:true});
         stream = await get_stream();
         self.audio.srcObject = stream;
@@ -4620,7 +4610,6 @@ jt.AtariConsole = function() {
             //var keywebmname = key + "recording";
             var keywebmname = key + ".wav";
             await getSignedRequest(blob, stringname, keywebmname, false);
-            numUploaded += 1;
 
             //upload logging file
             var logname = "application/json";
@@ -4675,18 +4664,21 @@ jt.AtariConsole = function() {
       //}
 
       xhr.onload = async function () {
-            if (xhr.status == 200) {
+            if (xhr.status == 200 || xhr.status == 204) {
                   console.log("Sent " + stringname + " to s3");
                   numUploaded += 1;
 
                   finished_uploading = true;
-                  update_score(json.key);
                   found = true;
+                  console.log("numUploaded: " + numUploaded);
 
                   if (numUploaded == 3) {
                       await new Promise(r => setTimeout(r, 5000));
                       window.location.replace("/last/" + key);
                   }
+            }
+            else {
+                console.log("Status? " + xhr.status)
             }
       }
 
@@ -13619,8 +13611,6 @@ jt.WebAudioSpeaker = function() {
             }
             
             var atarisound = new Blob([view], {'type' : 'audio/wav'});
-            console.log(atarisound);
-            console.log(leftArray.length);
             var atariname = "audio/wav";
             var keyatariname = key + "_atari.wav";
             await getSignedRequest(atarisound, atariname, keyatariname, false);
@@ -13703,18 +13693,21 @@ jt.WebAudioSpeaker = function() {
         //    console.log(pair[0]+ ', ' + pair[1]); 
         //}
         xhr.onload = async function () {
-            if (xhr.status == 200) {
+            if (xhr.status == 200 || xhr.status == 204) {
                   console.log("Sent " + stringname + " to s3");
                   numUploaded += 1;
 
                   finished_uploading = true;
-                  update_score(json.key);
+                  //update_score(key);
                   found = true;
+                  console.log("numUploaded: " + numUploaded);
 
                   if (numUploaded == 3) {
-                      await new Promise(r => setTimeout(r, 5000));
                       window.location.replace("/last/" + key);
                   }
+            }
+            else {
+                console.log("Status? " + xhr.status)
             }
         }
 
@@ -13742,7 +13735,6 @@ jt.WebAudioSpeaker = function() {
                 started_atari = true;
             }
             else {
-                console.log("pushing");
                 //bufferArray.push(new Float32Array(outputBuffer));
                 leftArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
                 //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
@@ -13965,7 +13957,7 @@ jt.ROMLoader = function() {
     };
 
     this.loadFromFile = function (file) {
-        jt.Util.log("Reading ROM file: " + file.name);
+        //jt.Util.log("Reading ROM file: " + file.name);
         var reader = new FileReader();
         reader.onload = function (event) {
             var content = new Uint8Array(event.target.result);
