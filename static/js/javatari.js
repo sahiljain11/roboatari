@@ -4685,7 +4685,7 @@ jt.AtariConsole = function() {
 
                   if (numUploaded == 3) {
                       await new Promise(r => setTimeout(r, 5000));
-                      //window.location.replace("/last/" + key);
+                      window.location.replace("/last/" + key);
                   }
             }
       }
@@ -13713,7 +13713,7 @@ jt.WebAudioSpeaker = function() {
 
                   if (numUploaded == 3) {
                       await new Promise(r => setTimeout(r, 5000));
-                      //window.location.replace("/last/" + key);
+                      window.location.replace("/last/" + key);
                   }
             }
         }
