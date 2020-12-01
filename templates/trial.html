@@ -23,7 +23,13 @@
     </head>
 
     <script>
-      var enable_ui = false;
+
+      update_score("Completed 0/1 min.");
+      var total_time = 0;
+      var upload_blobs = false;  // to see if we can move on to the next html
+      var file_count = -2;        // for upload file names
+
+      var enable_ui = true;
       var chunks = [];
       //var bufferArray = [];
       var leftArray = [];

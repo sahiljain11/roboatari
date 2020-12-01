@@ -49,7 +49,8 @@ def last(key):
 @app.route('/game')
 def game():
   rom = 'spaceinvaders'
-  return render_template('index.html', rom=rom, ai_score=0)
+  session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+  return render_template('index.html', rom=rom, ai_score=0, key=session["key"])
 
 
 

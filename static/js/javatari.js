@@ -4503,15 +4503,15 @@ jt.AtariConsole = function() {
                     //update_score("Unknown");
                 }
                 else {
-                    fetch('/key', {
-                        method: 'GET'
-                    }).then(function (response) {
-                        return response.json();
-                    }).then(async function(json) {
-                        //update_score(json.key);
-                        found = true;
-                        key = json.key;
-                    });
+                    //fetch('/key', {
+                    //    method: 'GET'
+                    //}).then(function (response) {
+                    //    return response.json();
+                    //}).then(async function(json) {
+                    //    //update_score(json.key);
+                    //    found = true;
+                    //    key = json.key;
+                    //});
                 }
               }
             } else {
@@ -4539,10 +4539,6 @@ jt.AtariConsole = function() {
             self.audio = document.querySelector('audio');
 
             await self.start_recording(self.recorder, self.audio);
-
-            //while (self.start_recording_finished == false) {
-
-            //}
 
             self.save_seq();
             sequence_sent = false;
@@ -4573,6 +4569,7 @@ jt.AtariConsole = function() {
         });
 
         self.recorder.startRecording();
+        timer_start = Date.now();
 
         self.recorder.stream = stream;
         started = true;
@@ -4589,37 +4586,29 @@ jt.AtariConsole = function() {
 
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
-        var key;
-        fetch('/key', {
-            method: 'GET'
-        }).then(function (response) {
-            return response.json();
-        }).then(async function(json) {
-            await self.recorder.stopRecording();
+        await self.recorder.stopRecording();
 
-            self.audio.srcObject = null;
+        self.audio.srcObject = null;
 
-            let blob = await self.recorder.getBlob();
-            self.audio.src = URL.createObjectURL(blob);
+        let blob = await self.recorder.getBlob();
+        self.audio.src = URL.createObjectURL(blob);
 
-            key = json.key;
-            await Javatari.room.speaker.stop_recording(key);
+        await Javatari.room.speaker.stop_recording(key);
 
-            //upload video stream
-            var stringname = "audio/wav"
-            //var keywebmname = key + "recording";
-            var keywebmname = key + ".wav";
-            await getSignedRequest(blob, stringname, keywebmname, false);
+        //upload video stream
+        var stringname = "audio/wav"
+        //var keywebmname = key + "recording";
+        var keywebmname = key + "_" + file_count + ".wav"
+        await getSignedRequest(blob, stringname, keywebmname, false);
 
-            //upload logging file
-            var logname = "application/json";
-            //var keyjsonname = key + "logging"
-            var keyjsonname = key + ".json"
-            await getSignedRequest(to_send, logname, keyjsonname, true);
+        //upload logging file
+        var logname = "application/json";
+        //var keyjsonname = key + "logging"
+        var keyjsonname = key + "_" + file_count + ".json"
+        await getSignedRequest(to_send, logname, keyjsonname, true);
 
-            //$("#mturk-key").css("background-color", "green");
-            //console.log($("#mturk-key").css("background-color"));
-        });
+        //$("#mturk-key").css("background-color", "green");
+        //console.log($("#mturk-key").css("background-color"));
 
     };
 
@@ -4631,7 +4620,7 @@ jt.AtariConsole = function() {
             if(xhr.readyState === 4){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
-                    uploadFile(file, response.data, response.url, response, isJson, file);
+                    uploadFile(file, response.data, response.url, response, isJson, keyname);
                 }
                 else{
                     //alert("Could not get signed URL.");
@@ -4666,13 +4655,15 @@ jt.AtariConsole = function() {
       xhr.onload = async function () {
             if (xhr.status == 200 || xhr.status == 204) {
                   console.log("Sent " + stringname + " to s3");
-                  numUploaded += 1;
+
+                  if (upload_blobs) {
+                    numUploaded += 1;
+                  }
 
                   finished_uploading = true;
                   found = true;
-                  console.log("numUploaded: " + numUploaded);
 
-                  if (numUploaded == 3) {
+                  if (numUploaded == 3 && upload_blobs) {
                       await new Promise(r => setTimeout(r, 5000));
                       window.location.replace("/last/" + key);
                   }
@@ -13568,54 +13559,57 @@ jt.WebAudioSpeaker = function() {
         //connect filter to it?
         mediaRecorder.start();
 
-        mediaRecorder.ondataavailable = async function(evt) {
-            //chunks.push(evt.data);
-
-            // ============ implement wav encoding scheme on the stored buffer information
-            // leftArray and rightArray for the two channels of output
-            // arrayLength = size of each array
-
-            // https://gist.github.com/meziantou/edb7217fddfbb70e899e
-            var leftBuffer  = flattenArray(leftArray, arrayLength);
-            var rightBuffer = flattenArray(leftArray, arrayLength);
-
-            var interleaved = interleave(leftBuffer, rightBuffer);
-            
-            // we create our wav file
-            var buffer = new ArrayBuffer(44 + interleaved.length * 2);
-            var view = new DataView(buffer);
-
-            // RIFF chunk descriptor
-            writeUTFBytes(view, 0, 'RIFF');
-            view.setUint32(4, 44 + interleaved.length * 2, true);
-            writeUTFBytes(view, 8, 'WAVE');
-            // FMT sub-chunk
-            writeUTFBytes(view, 12, 'fmt ');
-            view.setUint32(16, 16, true); // chunkSize
-            view.setUint16(20, 1, true); // wFormatTag
-            view.setUint16(22, 2, true); // wChannels: stereo (2 channels)
-            view.setUint32(24, jt.TiaAudioSignal.SAMPLE_RATE, true); // dwSamplesPerSec
-            view.setUint32(28, jt.TiaAudioSignal.SAMPLE_RATE * 4, true); // dwAvgBytesPerSec
-            view.setUint16(32, 4, true); // wBlockAlign
-            view.setUint16(34, 16, true); // wBitsPerSample
-            // data sub-chunk
-            writeUTFBytes(view, 36, 'data');
-            view.setUint32(40, interleaved.length * 2, true);
-
-            // write the PCM samples
-            var index = 44;
-            var volume = 1;
-            for (var i = 0; i < interleaved.length; i++) {
-                view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
-                index += 2;
-            }
-            
-            var atarisound = new Blob([view], {'type' : 'audio/wav'});
-            var atariname = "audio/wav";
-            var keyatariname = key + "_atari.wav";
-            await getSignedRequest(atarisound, atariname, keyatariname, false);
-        };
+        //mediaRecorder.ondataavailable = async function(evt) {
+        //};
         this.play();
+    };
+
+    var uploadAtariData = async function () {
+        // ============ implement wav encoding scheme on the stored buffer information
+        // leftArray and rightArray for the two channels of output
+        // arrayLength = size of each array
+
+        // https://gist.github.com/meziantou/edb7217fddfbb70e899e
+        var leftBuffer  = flattenArray(leftArray, arrayLength);
+        var rightBuffer = flattenArray(leftArray, arrayLength);
+
+        var interleaved = interleave(leftBuffer, rightBuffer);
+            
+        // we create our wav file
+        var buffer = new ArrayBuffer(44 + interleaved.length * 2);
+        var view = new DataView(buffer);
+
+        // RIFF chunk descriptor
+        writeUTFBytes(view, 0, 'RIFF');
+        view.setUint32(4, 44 + interleaved.length * 2, true);
+        writeUTFBytes(view, 8, 'WAVE');
+        // FMT sub-chunk
+        writeUTFBytes(view, 12, 'fmt ');
+        view.setUint32(16, 16, true); // chunkSize
+        view.setUint16(20, 1, true); // wFormatTag
+        view.setUint16(22, 2, true); // wChannels: stereo (2 channels)
+        view.setUint32(24, jt.TiaAudioSignal.SAMPLE_RATE, true); // dwSamplesPerSec
+        view.setUint32(28, jt.TiaAudioSignal.SAMPLE_RATE * 4, true); // dwAvgBytesPerSec
+        view.setUint16(32, 4, true); // wBlockAlign
+        view.setUint16(34, 16, true); // wBitsPerSample
+        // data sub-chunk
+        writeUTFBytes(view, 36, 'data');
+        view.setUint32(40, interleaved.length * 2, true);
+
+        // write the PCM samples
+        var index = 44;
+        var volume = 1;
+        for (var i = 0; i < interleaved.length; i++) {
+            view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
+            index += 2;
+        }
+            
+        var atarisound = new Blob([view], {'type' : 'audio/wav'});
+        var atariname = "audio/wav";
+        var keyatariname = key + "_atari_" + file_count + ".wav";
+        await getSignedRequest(atarisound, atariname, keyatariname, false);
+        leftArray = [];
+        arrayLength = 0;
     };
 
     this.powerOff = function() {
@@ -13638,6 +13632,7 @@ jt.WebAudioSpeaker = function() {
     this.stop_recording = async function (k) {
         mediaRecorder.stop();
         key = k;
+        await uploadAtariData();
     };
 
     var createAudioContext = function() {
@@ -13661,7 +13656,7 @@ jt.WebAudioSpeaker = function() {
             if(xhr.readyState === 4){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
-                    uploadFile(file, response.data, response.url, response, isJson, file);
+                    uploadFile(file, response.data, response.url, response, isJson, keyname);
                 }
                 else{
                     //alert("Could not get signed URL.");
@@ -13695,14 +13690,15 @@ jt.WebAudioSpeaker = function() {
         xhr.onload = async function () {
             if (xhr.status == 200 || xhr.status == 204) {
                   console.log("Sent " + stringname + " to s3");
-                  numUploaded += 1;
+                  if (upload_blobs) {
+                    numUploaded += 1;
+                  }
 
                   finished_uploading = true;
                   //update_score(key);
                   found = true;
-                  console.log("numUploaded: " + numUploaded);
 
-                  if (numUploaded == 3) {
+                  if (numUploaded == 3 && upload_blobs) {
                       window.location.replace("/last/" + key);
                   }
             }
@@ -13735,10 +13731,7 @@ jt.WebAudioSpeaker = function() {
                 started_atari = true;
             }
             else {
-                //bufferArray.push(new Float32Array(outputBuffer));
                 leftArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
-                //rightArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
-                //rightArray.push(new Float32Array(Javatari.AUDIO_BUFFER_SIZE));
                 arrayLength += Javatari.AUDIO_BUFFER_SIZE;
             }
         }
@@ -15699,7 +15692,6 @@ Invaders = function() {
 	  this.terminal = false;
     this.lives    = 3;
     this.frame    = 0;
-    this.startTime = Date.now();
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15717,9 +15709,28 @@ Invaders = function() {
   
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
-    if(tmp == 128 || Date.now() - this.starTime > 5 * 60000) {
+
+    var temp = Date.now() - timer_start;
+    var max_time = MIN_TILL_COMPLETION * 60000;
+
+    if(tmp == 128 || total_time >= max_time) {
       this.terminal = true;
       started = false;
+    }
+
+    if (this.terminal == true && started == true) {
+        file_count += 1;
+        total_time += temp;
+        console.log("total_time: " + total_time);
+        if (total_time >= max_time) {
+            total_time = max_time;
+            update_score("Processing your data...");
+            upload_blobs = true;
+        }
+        else {
+            var percentage = total_time / 60000; //how many minutes of data do we got
+            update_score("Completed " + percentage.toFixed(2) + "/" + MIN_TILL_COMPLETION + " min.");
+        }
     }
             
     this.frame++;

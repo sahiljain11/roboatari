@@ -15,6 +15,7 @@
         <script type="text/javascript"> var rom = '{{rom}}';</script>
         <script type="text/javascript"> var ai_score = parseInt('{{ai_score}}');</script>
         <script type="text/javascript"> var traj_id = '{{traj_id}}';</script>
+        <script type="text/javascript"> var key = '{{key}}';</script>
         <script type="text/javascript"> window.Javatari_IMAGES_PATH = '{{ url_for('static',filename='img/') }}';</script>
         <script type="text/javascript"> var ROM_PATH = '{{ url_for('static',filename='roms/') }}';</script>
         <script src="../static/js/javatari.js"></script>
@@ -24,9 +25,18 @@
 
     <script>
 
+      const MIN_TILL_COMPLETION = 2;
+      var timer_start = 0;
+
+      var total_time = 0;
+      var upload_blobs = false;  // to see if we can move on to the next html
+      var file_count = 0;        // for upload file names
+
       var numUploaded = 0;
 
       var enable_ui = true;
+      update_score("Completed 0.00/" + MIN_TILL_COMPLETION + " min.");
+
       var chunks = [];
       //var bufferArray = [];
       var leftArray = [];

@@ -100,8 +100,7 @@ var update_score = function(text) {
     //  }
     //}
     if (enable_ui == true) {
-      var ai_text = "Loading...";
-      $("#ai-bar-text").html(ai_text);
+      $("#ai-bar-text").html(text);
     }
     //ai_percentile = parseInt(100*score/ai_score);
     //if(ai_percentile > 100) {
