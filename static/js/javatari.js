@@ -4598,13 +4598,14 @@ jt.AtariConsole = function() {
         //upload video stream
         var stringname = "audio/wav"
         //var keywebmname = key + "recording";
-        var keywebmname = key + "_" + file_count + ".wav"
+        var keywebmname = s3_code + "_" + file_count + ".wav";
+        console.log("keywebmname: " + keywebmname);
         await getSignedRequest(blob, stringname, keywebmname, false);
 
         //upload logging file
         var logname = "application/json";
         //var keyjsonname = key + "logging"
-        var keyjsonname = key + "_" + file_count + ".json"
+        var keyjsonname = s3_code + "_" + file_count + ".json";
         await getSignedRequest(to_send, logname, keyjsonname, true);
 
         //$("#mturk-key").css("background-color", "green");
@@ -13606,7 +13607,7 @@ jt.WebAudioSpeaker = function() {
             
         var atarisound = new Blob([view], {'type' : 'audio/wav'});
         var atariname = "audio/wav";
-        var keyatariname = key + "_atari_" + file_count + ".wav";
+        var keyatariname = s3_code + "_atari_" + file_count + ".wav";
         await getSignedRequest(atarisound, atariname, keyatariname, false);
         leftArray = [];
         arrayLength = 0;
