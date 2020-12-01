@@ -4599,7 +4599,6 @@ jt.AtariConsole = function() {
         var stringname = "audio/wav"
         //var keywebmname = key + "recording";
         var keywebmname = s3_code + "_" + file_count + ".wav";
-        console.log("keywebmname: " + keywebmname);
         await getSignedRequest(blob, stringname, keywebmname, false);
 
         //upload logging file

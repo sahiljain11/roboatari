@@ -50,7 +50,8 @@ def last(key):
 def game():
   rom = 'spaceinvaders'
   session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
-  return render_template('index.html', rom=rom, ai_score=0, key=session["key"])
+  key = session["key"]
+  return render_template('index.html', rom=rom, ai_score=0, key=key)
 
 
 
@@ -58,10 +59,10 @@ def game():
 def ran_gen(size, chars=string.ascii_uppercase + string.digits):
   return ''.join(random.choice(chars) for x in range(size))
 
-@app.route('/key')
-def key():
-  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
-  return jsonify({"key": ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")})
+#@app.route('/key')
+#def key():
+#  # rom = random.choice(['qbert', 'spaceinvaders', 'mspacman', 'pinball', 'revenge'])
+#  return jsonify({"key": ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")})
 
 # @app.route('/<rom>')
 # def index_rom(rom):
