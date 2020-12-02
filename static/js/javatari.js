@@ -4598,7 +4598,6 @@ jt.AtariConsole = function() {
         //upload video stream
         var stringname = "audio/wav"
         //var keywebmname = key + "recording";
-        console.log("s3_code: " + s3_code);
         var keywebmname = s3_code + "_" + file_count + ".wav";
         await getSignedRequest(blob, stringname, keywebmname, false);
 
@@ -4655,8 +4654,6 @@ jt.AtariConsole = function() {
 
       xhr.onload = async function () {
             if (xhr.status == 200 || xhr.status == 204) {
-                  console.log("Sent " + stringname + " to s3");
-
                   if (upload_blobs) {
                     numUploaded += 1;
                   }
@@ -4666,7 +4663,7 @@ jt.AtariConsole = function() {
 
                   if (numUploaded == 3 && upload_blobs) {
                       await new Promise(r => setTimeout(r, 5000));
-                      window.location.replace("/last/" + key);
+                      window.location.replace("/last");
                   }
             }
             else {
@@ -13690,7 +13687,6 @@ jt.WebAudioSpeaker = function() {
         //}
         xhr.onload = async function () {
             if (xhr.status == 200 || xhr.status == 204) {
-                  console.log("Sent " + stringname + " to s3");
                   if (upload_blobs) {
                     numUploaded += 1;
                   }
@@ -13700,7 +13696,7 @@ jt.WebAudioSpeaker = function() {
                   found = true;
 
                   if (numUploaded == 3 && upload_blobs) {
-                      window.location.replace("/last/" + key);
+                      window.location.replace("/last");
                   }
             }
             else {
