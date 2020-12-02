@@ -4499,8 +4499,8 @@ jt.AtariConsole = function() {
               trajectory[self.game.frame-1] = frame_data;
               if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
-                if (finished_uploading == false) {
-                    //update_score("Unknown");
+                if (finished_uploading == false && is_zero == true) {
+                    update_score("Completed 0.00/" + MIN_TILL_COMPLETION + " min.");
                 }
                 else {
                     //fetch('/key', {
@@ -15711,11 +15711,13 @@ Invaders = function() {
     var max_time = MIN_TILL_COMPLETION * 60000;
 
     if(tmp == 128 || total_time >= max_time) {
+      is_zero = false;
       this.terminal = true;
       started = false;
     }
 
     if (this.terminal == true && started == true) {
+        is_zero = false;
         file_count += 1;
         total_time += temp;
         console.log("total_time: " + total_time);

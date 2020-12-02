@@ -4498,17 +4498,9 @@ jt.AtariConsole = function() {
               if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
                 if (finished_uploading == false) {
-                    update_score("Unknown");
+                    update_score("");
                 }
                 else {
-                    fetch('/key', {
-                        method: 'GET'
-                    }).then(function (response) {
-                        return response.json();
-                    }).then(async function(json) {
-                        update_score(json.key);
-                        found = true;
-                    });
                 }
               }
             } else {
@@ -4625,7 +4617,7 @@ jt.AtariConsole = function() {
             //getSignedRequest(to_send, logname, keyjsonname, true);
 
             finished_uploading = true;
-            update_score(json.key);
+            //update_score(json.key);
             found = true;
 
             $("#mturk-key").css("background-color", "green");
