@@ -4488,7 +4488,7 @@ jt.AtariConsole = function() {
                 self.started = true;
               }
               if (first_iter) {
-                update_score(MIN_TILL_COMPLETION + ".0 min. remaining");
+                update_score(MIN_TILL_COMPLETION + " min. remaining");
                 first_iter = false;
               }
             }
@@ -15722,7 +15722,7 @@ Invaders = function() {
 
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         if (calc > 0 && this.prev != calc) {
-          update_score(calc.toFixed(1) + " min. remaining");
+          update_score(calc.toFixed(0) + " min. remaining");
           this.prev = calc;
         }
         else if (calc == 0) {
