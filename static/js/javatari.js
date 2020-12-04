@@ -4487,7 +4487,10 @@ jt.AtariConsole = function() {
               if(rom == 'qbert' || rom == 'revenge') {
                 self.started = true;
               }
-              update_score("Completed 0.00/" + MIN_TILL_COMPLETION + " min.");
+              if (first_iter) {
+                update_score(MIN_TILL_COMPLETION + ".0 min. remaining");
+                first_iter = false;
+              }
             }
             if(!self.game.terminal) {
               self.game.step(self.ram);
@@ -15689,6 +15692,8 @@ Invaders = function() {
 	  this.terminal = false;
     this.lives    = 3;
     this.frame    = 0;
+    this.startTime = Date.now();
+    this.prev = MIN_TILL_COMPLETION;
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15703,12 +15708,31 @@ Invaders = function() {
     }
     this.score = score;
     this.lives = ram.read('0xC9');
-  
+
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
 
-    var temp = Date.now() - timer_start;
     var max_time = MIN_TILL_COMPLETION * 60000;
+
+    if (started == true && this.terminal == false) {
+        //update the time
+        var curr_time = Date.now();
+        total_time += curr_time - this.startTime;
+        this.startTime = curr_time;
+
+        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        if (calc > 0 && this.prev != calc) {
+          //update_score(calc.toFixed(1) + " min. remaining");
+          update_score(total_time);
+          this.prev = calc;
+        }
+        else if (calc == 0) {
+            update_score("Processing your data...");
+            upload_blobs = true;
+            this.terminal == true;
+            total_time = max_time;
+        }
+    }
 
     if(tmp == 128 || total_time >= max_time) {
       is_zero = false;
@@ -15719,17 +15743,16 @@ Invaders = function() {
     if (this.terminal == true && started == true) {
         is_zero = false;
         file_count += 1;
-        total_time += temp;
         console.log("total_time: " + total_time);
         if (total_time >= max_time) {
             total_time = max_time;
             update_score("Processing your data...");
             upload_blobs = true;
         }
-        else {
-            var percentage = total_time / 60000; //how many minutes of data do we got
-            update_score("Completed " + percentage.toFixed(2) + "/" + MIN_TILL_COMPLETION + " min.");
-        }
+        //else {
+        //    var percentage = total_time / 60000; //how many minutes of data do we got
+        //    update_score("Completed " + percentage.toFixed(2) + "/" + MIN_TILL_COMPLETION + " min.");
+        //}
     }
             
     this.frame++;
