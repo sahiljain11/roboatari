@@ -15722,8 +15722,7 @@ Invaders = function() {
 
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         if (calc > 0 && this.prev != calc) {
-          //update_score(calc.toFixed(1) + " min. remaining");
-          update_score(total_time);
+          update_score(calc.toFixed(1) + " min. remaining");
           this.prev = calc;
         }
         else if (calc == 0) {
