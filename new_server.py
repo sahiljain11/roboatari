@@ -44,7 +44,9 @@ def after_trial():
 
 @app.route('/last')
 def last():
-  key = session["key"]
+  key = session.get("key")
+  if key == None:
+    return render_template('last.html', key="<no_code_given>")
   return render_template('last.html', key=key)
 
 @app.route('/game')
