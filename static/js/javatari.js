@@ -4488,7 +4488,7 @@ jt.AtariConsole = function() {
                 self.started = true;
               }
               if (first_iter) {
-                update_score(MIN_TILL_COMPLETION + " min. remaining");
+                //update_score(MIN_TILL_COMPLETION + " min. remaining");
                 first_iter = false;
               }
             }
@@ -15694,6 +15694,9 @@ Invaders = function() {
     this.frame    = 0;
     this.startTime = Date.now();
     this.prev = MIN_TILL_COMPLETION;
+    this.prev_lives = this.lives;
+    var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+    update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15722,17 +15725,22 @@ Invaders = function() {
 
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         if (calc > 0 && this.prev != calc) {
-          update_score(calc.toFixed(0) + " min. remaining");
+          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
           this.prev = calc;
         }
         else if (calc == 0) {
-            update_score("Processing your data...");
+            update_score("   Processing your data...");
             upload_blobs = true;
             this.terminal == true;
             total_time = max_time;
         }
     }
 
+    if (this.lives < this.prev_lives) {
+      update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+      this.prev_lives = this.lives;
+    }
+    
     if(tmp == 128 || total_time >= max_time) {
       is_zero = false;
       this.terminal = true;
@@ -15745,7 +15753,7 @@ Invaders = function() {
         console.log("total_time: " + total_time);
         if (total_time >= max_time) {
             total_time = max_time;
-            update_score("Processing your data...");
+            update_score("   Processing your data...");
             upload_blobs = true;
         }
         //else {
