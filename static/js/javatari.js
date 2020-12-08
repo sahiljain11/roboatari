@@ -4459,6 +4459,23 @@ jt.AtariConsole = function() {
     };
 
     this.clockPulse = function() {
+        //if (restart_bool == true) {
+        //    restart_bool = false;
+        //    console.log("soidfnioasdnfisdafniausdnfiuasdnfiusdniuasdnfliuasd");
+        //    var temp_func = this.resetEnv;
+        //    setTimeout(async function() {
+        //        console.log("setTimeout");
+        //        //console.log(new MouseEvent('click', {shiftKey: true}));
+        //        //document.getElementById("reset").dispatchEvent(new MouseEvent('click', {shiftKey: true}))
+        //        document.getElementById("reset").dispatchEvent(save_the_event);
+        //        //reset_stuff();
+        //        //controlsSocket.controlStateChanged(54, true);
+        //        //controlsSocket.clockPulse();
+        //        ////controlsSocket.controlStateChanged(jt.ConsoleControls.RESET, true);
+        //        //await temp_func();
+        //        ////restarted = true;
+        //      }, 10000);
+        //}
         if (videoStandardAutoDetectionInProgress)
             videoStandardAutoDetectionTry();
         frameActions = $.extend({}, Javatari.room.controls.getControlStateMap());        
@@ -4481,7 +4498,7 @@ jt.AtariConsole = function() {
             if(self.traj_max_frame == self.game.frame - 1) {
               alert('END OF REPLAY');              
             }
-          } else {
+          } else { // not in replay
             if (self.game.frame == 1) {
               self.init_state = self.saveState();
               if(rom == 'qbert' || rom == 'revenge') {
@@ -4501,7 +4518,7 @@ jt.AtariConsole = function() {
               frame_data['terminal'] = self.game.terminal;
               frame_data['score'] = self.game.score;
               trajectory[self.game.frame-1] = frame_data;
-              if(self.game.frame % 60 == 0 && found == false) {
+              //if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
                 //if (finished_uploading == false && is_zero == true) {
                 //}
@@ -4516,22 +4533,41 @@ jt.AtariConsole = function() {
                 //    //    key = json.key;
                 //    //});
                 //}
-              }
+              //}
             } else {
               self.save_seq();
               sequence_sent = true;
+                
+              //if (restart_bool == true) {
+              //    restart_bool = false;
+              //    console.log("soidfnioasdnfisdafniausdnfiuasdnfiusdniuasdnfliuasd");
+              //    var temp_func = this.resetEnv;
+              //    setTimeout(function() {
+              //        reset_stuff();
+              //        //console.log("setTimeout");
+              //        //controlsSocket.controlStateChanged(54, true);
+              //        //controlsSocket.clockPulse();
+              //        ////controlsSocket.controlStateChanged(jt.ConsoleControls.RESET, true);
+              //        //await temp_func();
+              //        ////restarted = true;
+              //      }, 10000);
+              //}
             } 
             controlsSocket.clockPulse();
-            if(isReset()) {
+            if(isReset() || restarted == true) {
+                console.log("resetting");
               self.resetEnv();
+              //restarted = false;
             }
           }
         }
         tia.frame();
         this.framesGenerated++;
+
     };
 
     this.resetEnv = async function() {
+        console.log("RESETENV");
         if (mic_enabled == false) {
             window.location.replace("mic");
         }
@@ -4657,16 +4693,17 @@ jt.AtariConsole = function() {
 
       xhr.onload = async function () {
             if (xhr.status == 200 || xhr.status == 204) {
-                  if (upload_blobs) {
-                    numUploaded += 1;
-                  }
+                  numUploaded += 1;
 
                   finished_uploading = true;
                   found = true;
 
-                  if (numUploaded == 3 && upload_blobs) {
+                  if (numUploaded % 3 == 0 && upload_blobs) {
                       await new Promise(r => setTimeout(r, 5000));
                       window.location.replace("/last");
+                  }
+                  else if (numUploaded % 3 == 0) { 
+                    document.getElementById("reset").dispatchEvent(save_the_event);
                   }
             }
             else {
@@ -13689,23 +13726,25 @@ jt.WebAudioSpeaker = function() {
         //    console.log(pair[0]+ ', ' + pair[1]); 
         //}
         xhr.onload = async function () {
-            if (xhr.status == 200 || xhr.status == 204) {
-                  if (upload_blobs) {
+              if (xhr.status == 200 || xhr.status == 204) {
                     numUploaded += 1;
-                  }
 
-                  finished_uploading = true;
-                  //update_score(key);
-                  found = true;
+                    finished_uploading = true;
+                    found = true;
 
-                  if (numUploaded == 3 && upload_blobs) {
-                      window.location.replace("/last");
-                  }
-            }
-            else {
-                console.log("Status? " + xhr.status)
-            }
+                    if (numUploaded % 3 == 0 && upload_blobs) {
+                        await new Promise(r => setTimeout(r, 5000));
+                        window.location.replace("/last");
+                    }
+                    else if (numUploaded % 3 == 0) { 
+                      document.getElementById("reset").dispatchEvent(save_the_event);
+                    }
+              }
+              else {
+                  console.log("Status? " + xhr.status)
+              }
         }
+
 
         xhr.send(postData);
         //if (isJson) {
@@ -15695,8 +15734,10 @@ Invaders = function() {
     this.startTime = Date.now();
     this.prev = MIN_TILL_COMPLETION;
     this.prev_lives = this.lives;
+    this.restart_stuff = true;
     var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
     update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+    console.log("at the end of the reset function");
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15744,17 +15785,30 @@ Invaders = function() {
     if(tmp == 128 || total_time >= max_time) {
       is_zero = false;
       this.terminal = true;
-      started = false;
+      //started = false;
     }
 
     if (this.terminal == true && started == true) {
         is_zero = false;
         file_count += 1;
         console.log("total_time: " + total_time);
+        started = false;
         if (total_time >= max_time) {
             total_time = max_time;
             update_score("   Processing your data...");
             upload_blobs = true;
+        }
+        else if (this.restart_stuff == true) {
+            update_score("You lost all lives. New game starting...");
+            restart_bool = true;
+            this.restart_stuff = false;
+            console.log("in else if statement");
+            //setTimeout(function() {
+            //    return function() {
+            //        console.log("setTimeout");
+            //        document.getElementById("reset").dispatchEvent(save_the_event);
+            //    }
+            //  }, 10000);
         }
         //else {
         //    var percentage = total_time / 60000; //how many minutes of data do we got

@@ -71,10 +71,13 @@ var setup_reset_btn = function(but) {
 	but.style.cursor = "pointer";
   var mouseDown;
   but.addEventListener("mousedown", function (e) {
+    console.log(e);
+    save_the_event = e;
 	if (e.preventDefault) e.preventDefault();
     mouseDown = true;
-    controlsSocket.controlStateChanged(control, true);
-    Javatari.room.console.resetEnv();
+    //controlsSocket.controlStateChanged(control, true);
+    //Javatari.room.console.resetEnv();
+    reset_stuff();
 	});
 	but.addEventListener("mouseup", function (e) {
 	if (e.preventDefault) e.preventDefault();
@@ -87,7 +90,13 @@ var setup_reset_btn = function(but) {
 		mouseDown = false;
 		controlsSocket.controlStateChanged(control, false);
 	});
+}
 
+var reset_stuff = function() {
+	  control = jt.ConsoleControls.RESET;
+	  controlsSocket = Javatari.room.console.getControlsSocket();
+    controlsSocket.controlStateChanged(control, true);
+    Javatari.room.console.resetEnv();
 }
 
 var update_score = function(text) {
@@ -108,3 +117,4 @@ var update_score = function(text) {
     //}
     //$("#ai-score").width(ai_percentile+"%");
 }
+
