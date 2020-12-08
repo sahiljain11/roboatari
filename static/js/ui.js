@@ -75,10 +75,10 @@ var setup_reset_btn = function(but) {
     save_the_event = e;
 	if (e.preventDefault) e.preventDefault();
     mouseDown = true;
-    //controlsSocket.controlStateChanged(control, true);
-    //Javatari.room.console.resetEnv();
-    console.log("mousedown event reset");
-    reset_stuff();
+    controlsSocket.controlStateChanged(control, true);
+    Javatari.room.console.resetEnv();
+    //console.log("mousedown event reset");
+    //reset_stuff();
 	});
 	but.addEventListener("mouseup", function (e) {
 	if (e.preventDefault) e.preventDefault();
