@@ -4703,7 +4703,8 @@ jt.AtariConsole = function() {
                       window.location.replace("/last");
                   }
                   else if (numUploaded % 3 == 0) { 
-                    document.getElementById("reset").dispatchEvent(save_the_event);
+                      //document.getElementById("reset").dispatchEvent(save_the_event);
+                      reset_stuff();
                   }
             }
             else {
@@ -13737,7 +13738,8 @@ jt.WebAudioSpeaker = function() {
                         window.location.replace("/last");
                     }
                     else if (numUploaded % 3 == 0) { 
-                      document.getElementById("reset").dispatchEvent(save_the_event);
+                      //document.getElementById("reset").dispatchEvent(save_the_event);
+                      reset_stuff();
                     }
               }
               else {
