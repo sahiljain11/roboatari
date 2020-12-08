@@ -93,11 +93,11 @@ var setup_reset_btn = function(but) {
 	});
 }
 
-var reset_stuff = function() {
+var reset_stuff = async function() {
 	  control = jt.ConsoleControls.RESET;
 	  controlsSocket = Javatari.room.console.getControlsSocket();
     controlsSocket.controlStateChanged(control, true);
-    Javatari.room.console.resetEnv();
+    await Javatari.room.console.resetEnv();
     controlsSocket.controlStateChanged(control, false);
 }
 
