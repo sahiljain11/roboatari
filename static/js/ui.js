@@ -98,6 +98,7 @@ var reset_stuff = function() {
 	  controlsSocket = Javatari.room.console.getControlsSocket();
     controlsSocket.controlStateChanged(control, true);
     Javatari.room.console.resetEnv();
+    controlsSocket.controlStateChanged(control, false);
 }
 
 var update_score = function(text) {
