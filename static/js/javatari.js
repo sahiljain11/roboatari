@@ -15729,7 +15729,7 @@ Montezuma = function() {
 
 Invaders = function() {
   this.id = 3;
-  this.restart_stuff = true;
+  //this.restart_stuff = true;
   this.prev = MIN_TILL_COMPLETION;
 
 	this.reset = function() {
@@ -15778,7 +15778,7 @@ Invaders = function() {
           update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
           this.prev = calc;
         }
-        else if (calc == 0 && this.prev != calc ){
+        else if (calc == 1 && this.prev != calc ){
           update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " life left");
           this.prev = calc;
         }
@@ -15798,7 +15798,7 @@ Invaders = function() {
         }
     }
 
-    if (this.terminal == true && started == true && this.lives == 0) {
+    if (this.terminal == true && started == true) {
         file_count += 1;
         started = false;
         if (total_time >= max_time) {
@@ -15806,7 +15806,7 @@ Invaders = function() {
             update_score("Processing your data...");
             upload_blobs = true;
         }
-        else if (this.restart_stuff == true) {
+        else {
             //console.log("what is happening " + this.lives);
             //console.log("what is happening " + this.terminal);
             update_score("You lost all lives. Click new game to continue!");
