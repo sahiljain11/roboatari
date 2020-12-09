@@ -15741,6 +15741,7 @@ Invaders = function() {
     this.restart_stuff = true;
     var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
     update_score("  " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+    console.log("reset should've changed score")
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
