@@ -4703,8 +4703,10 @@ jt.AtariConsole = function() {
                       window.location.replace("/last");
                   }
                   else if (numUploaded % 3 == 0) { 
+                      // put stuff here that you want to be updated after every round
+                      // except for the last round
                       //document.getElementById("reset").dispatchEvent(save_the_event);
-                      reset_stuff();
+                      //reset_stuff();
                   }
             }
             else {
@@ -13739,7 +13741,7 @@ jt.WebAudioSpeaker = function() {
                     }
                     else if (numUploaded % 3 == 0) { 
                       //document.getElementById("reset").dispatchEvent(save_the_event);
-                      reset_stuff();
+                      //reset_stuff();
                     }
               }
               else {
@@ -15738,8 +15740,7 @@ Invaders = function() {
     this.prev_lives = this.lives;
     this.restart_stuff = true;
     var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-    update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-    console.log("at the end of the reset function");
+    update_score("  " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15768,11 +15769,11 @@ Invaders = function() {
 
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         if (calc > 0 && this.prev != calc) {
-          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          update_score("  " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
           this.prev = calc;
         }
         else if (calc == 0) {
-            update_score("   Processing your data...");
+            update_score("     Processing your data...");
             upload_blobs = true;
             this.terminal == true;
             total_time = max_time;
@@ -15780,7 +15781,7 @@ Invaders = function() {
     }
 
     if (this.lives < this.prev_lives) {
-      update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+      update_score("  " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
       this.prev_lives = this.lives;
     }
     
@@ -15793,29 +15794,17 @@ Invaders = function() {
     if (this.terminal == true && started == true) {
         is_zero = false;
         file_count += 1;
-        console.log("total_time: " + total_time);
         started = false;
         if (total_time >= max_time) {
             total_time = max_time;
-            update_score("   Processing your data...");
+            update_score("     Processing your data...");
             upload_blobs = true;
         }
         else if (this.restart_stuff == true) {
-            update_score("You lost all lives. New game starting...");
+            update_score("You lost all lives. Click new game to continue!");
             restart_bool = true;
             this.restart_stuff = false;
-            console.log("in else if statement");
-            //setTimeout(function() {
-            //    return function() {
-            //        console.log("setTimeout");
-            //        document.getElementById("reset").dispatchEvent(save_the_event);
-            //    }
-            //  }, 10000);
         }
-        //else {
-        //    var percentage = total_time / 60000; //how many minutes of data do we got
-        //    update_score("Completed " + percentage.toFixed(2) + "/" + MIN_TILL_COMPLETION + " min.");
-        //}
     }
             
     this.frame++;

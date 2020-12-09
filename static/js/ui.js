@@ -71,8 +71,8 @@ var setup_reset_btn = function(but) {
 	but.style.cursor = "pointer";
   var mouseDown;
   but.addEventListener("mousedown", function (e) {
-    console.log(e);
-    save_the_event = e;
+    //console.log(e);
+    //save_the_event = e;
 	if (e.preventDefault) e.preventDefault();
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);
@@ -93,13 +93,13 @@ var setup_reset_btn = function(but) {
 	});
 }
 
-var reset_stuff = async function() {
-	  control = jt.ConsoleControls.RESET;
-	  controlsSocket = Javatari.room.console.getControlsSocket();
-    controlsSocket.controlStateChanged(control, true);
-    await Javatari.room.console.resetEnv();
-    controlsSocket.controlStateChanged(control, false);
-}
+//var reset_stuff = async function() {
+//	  control = jt.ConsoleControls.RESET;
+//	  controlsSocket = Javatari.room.console.getControlsSocket();
+//    controlsSocket.controlStateChanged(control, true);
+//    await Javatari.room.console.resetEnv();
+//    controlsSocket.controlStateChanged(control, false);  // i'm so stupid
+//}
 
 var update_score = function(text) {
     //var percentile = 100;
