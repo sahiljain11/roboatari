@@ -15759,7 +15759,7 @@ Invaders = function() {
 
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
-    if(tmp == 128 || (total_time >= max_time && started == true)) {
+    if(tmp == 128 || total_time >= max_time) {
       this.terminal = true;
     //  //started = false;
     }
@@ -15781,6 +15781,9 @@ Invaders = function() {
         else if (calc == 1 && this.prev != calc ){
           update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " life left");
           this.prev = calc;
+        }
+        else if (calc == 0) {
+            this.terminal = true;
         }
         // should never run because this.terminal == true if you run out of lives
         //else if (calc == 0) {
