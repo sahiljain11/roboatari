@@ -15729,19 +15729,20 @@ Montezuma = function() {
 
 Invaders = function() {
   this.id = 3;
+  this.restart_stuff = true;
+  this.prev = MIN_TILL_COMPLETION;
+
 	this.reset = function() {
-    this.reward   = 0;
-	  this.score    = 0;
-	  this.terminal = false;
-    this.lives    = 3;
-    this.frame    = 0;
-    this.startTime = Date.now();
-    this.prev = MIN_TILL_COMPLETION;
-    this.prev_lives = this.lives;
-    this.restart_stuff = true;
-    var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-    update_score("  " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-    console.log("reset should've changed score")
+        this.reward   = 0;
+	    this.score    = 0;
+	    this.terminal = false;
+        this.lives    = 3;
+        this.prev_lives = 3;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        update_score("     " + calc.toFixed(0) + " min. remaining : 3 lives left");
+        console.log("reset should've changed score: " + this.lives)
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15759,6 +15760,10 @@ Invaders = function() {
 
     tmp = ram.read('0x98') & 0x80;
     this.terminal = tmp || this.lives == 0;
+    if(tmp == 128 || (total_time >= max_time && started == true)) {
+      this.terminal = true;
+    //  //started = false;
+    }
 
     var max_time = MIN_TILL_COMPLETION * 60000;
 
@@ -15768,32 +15773,29 @@ Invaders = function() {
         total_time += curr_time - this.startTime;
         this.startTime = curr_time;
 
-        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        var calc = Math.ceil((max_time - total_time) / 60000);
         if (calc > 0 && this.prev != calc) {
-          update_score("  " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          console.log("calc happening " + this.lives);
+          console.log("calc happening " + this.terminal);
+          update_score("     " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
           this.prev = calc;
         }
-        else if (calc == 0) {
-            update_score("     Processing your data...");
-            upload_blobs = true;
-            this.terminal == true;
-            total_time = max_time;
+        // should never run because this.terminal == true if you run out of lives
+        //else if (calc == 0) {
+        //    console.log("calc == 0");
+        //    update_score("     Processing your data...");
+        //    upload_blobs = true;
+        //    this.terminal == true;
+        //    total_time = max_time;
+        //}
+
+        if (this.lives < this.prev_lives) {
+          update_score("     " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          this.prev_lives = this.lives;
         }
     }
 
-    if (this.lives < this.prev_lives) {
-      update_score("  " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-      this.prev_lives = this.lives;
-    }
-    
-    if(tmp == 128 || total_time >= max_time) {
-      is_zero = false;
-      this.terminal = true;
-      //started = false;
-    }
-
-    if (this.terminal == true && started == true) {
-        is_zero = false;
+    if (this.terminal == true && started == true && this.lives == 0) {
         file_count += 1;
         started = false;
         if (total_time >= max_time) {
@@ -15802,12 +15804,17 @@ Invaders = function() {
             upload_blobs = true;
         }
         else if (this.restart_stuff == true) {
+            console.log("what is happening " + this.lives);
+            console.log("what is happening " + this.terminal);
             update_score("You lost all lives. Click new game to continue!");
-            restart_bool = true;
-            this.restart_stuff = false;
+            //restart_bool = true;
+            //this.restart_stuff = false;
         }
     }
-            
+
+    //if (this.frame == 0) {
+    //    this.restart_stuff = true;
+    //}
     this.frame++;
   };
 };
