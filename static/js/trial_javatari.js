@@ -4495,14 +4495,13 @@ jt.AtariConsole = function() {
               frame_data['terminal'] = self.game.terminal;
               frame_data['score'] = self.game.score;
               trajectory[self.game.frame-1] = frame_data;
-              if(self.game.frame % 60 == 0 && found == false) {
-                //var score = self.started ? self.game.score:0;
-                if (finished_uploading == false) {
-                    update_score("");
-                }
-                else {
-                }
-              }
+              //if(self.game.frame % 60 == 0 && found == false) {
+              //  //var score = self.started ? self.game.score:0;
+              //  if (finished_uploading == false) {
+              //  }
+              //  else {
+              //  }
+              //}
             } else {
               self.save_seq();
               sequence_sent = true;
