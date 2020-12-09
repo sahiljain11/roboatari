@@ -158,7 +158,8 @@ body {
 #ai-bar-text {
 	position:absolute;
   display:table-cell;
-	left:10%;
+  text-align: center;
+	/*left:5%;*/
 	top:25%;
 	width:100%;
 }

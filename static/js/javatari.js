@@ -15741,8 +15741,7 @@ Invaders = function() {
         this.frame    = 0;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score("     " + calc.toFixed(0) + " min. remaining : 3 lives left");
-        console.log("reset should've changed score: " + this.lives)
+        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
   };
   this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15774,10 +15773,13 @@ Invaders = function() {
         this.startTime = curr_time;
 
         var calc = Math.ceil((max_time - total_time) / 60000);
-        if (calc > 0 && this.prev != calc) {
-          console.log("calc happening " + this.lives);
-          console.log("calc happening " + this.terminal);
-          update_score("     " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+        if (calc > 1 && this.prev != calc) {
+          //update_score("     " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          this.prev = calc;
+        }
+        else if (calc == 0 && this.prev != calc ){
+          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " life left");
           this.prev = calc;
         }
         // should never run because this.terminal == true if you run out of lives
@@ -15790,7 +15792,8 @@ Invaders = function() {
         //}
 
         if (this.lives < this.prev_lives) {
-          update_score("     " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          //update_score("     " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+          update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
           this.prev_lives = this.lives;
         }
     }
@@ -15800,12 +15803,12 @@ Invaders = function() {
         started = false;
         if (total_time >= max_time) {
             total_time = max_time;
-            update_score("     Processing your data...");
+            update_score("Processing your data...");
             upload_blobs = true;
         }
         else if (this.restart_stuff == true) {
-            console.log("what is happening " + this.lives);
-            console.log("what is happening " + this.terminal);
+            //console.log("what is happening " + this.lives);
+            //console.log("what is happening " + this.terminal);
             update_score("You lost all lives. Click new game to continue!");
             //restart_bool = true;
             //this.restart_stuff = false;
