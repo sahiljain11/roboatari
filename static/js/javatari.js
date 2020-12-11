@@ -4699,7 +4699,7 @@ jt.AtariConsole = function() {
                   found = true;
 
                   if (numUploaded % 3 == 0 && upload_blobs) {
-                      await new Promise(r => setTimeout(r, 5000));
+                      //await new Promise(r => setTimeout(r, 5000));
                       window.location.replace("/last");
                   }
                   else if (numUploaded % 3 == 0) { 
@@ -13736,7 +13736,7 @@ jt.WebAudioSpeaker = function() {
                     found = true;
 
                     if (numUploaded % 3 == 0 && upload_blobs) {
-                        await new Promise(r => setTimeout(r, 5000));
+                        //await new Promise(r => setTimeout(r, 5000));
                         window.location.replace("/last");
                     }
                     else if (numUploaded % 3 == 0) { 
@@ -15761,7 +15761,6 @@ Invaders = function() {
     this.terminal = tmp || this.lives == 0;
     if(tmp == 128 || total_time >= max_time) {
       this.terminal = true;
-    //  //started = false;
     }
 
     var max_time = MIN_TILL_COMPLETION * 60000;
@@ -15773,31 +15772,27 @@ Invaders = function() {
         this.startTime = curr_time;
 
         var calc = Math.ceil((max_time - total_time) / 60000);
-        if (calc > 1 && this.prev != calc) {
-          //update_score("     " + calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-          this.prev = calc;
-        }
-        else if (calc == 1 && this.prev != calc ){
-          update_score(calc.toFixed(0) + " min. remaining : " + this.lives + " life left");
-          this.prev = calc;
+        var changed = false;
+        if (calc > 0 && this.prev != calc) {
+            changed = true;
+            this.prev = calc;
         }
         else if (calc == 0) {
             this.terminal = true;
         }
-        // should never run because this.terminal == true if you run out of lives
-        //else if (calc == 0) {
-        //    console.log("calc == 0");
-        //    update_score("     Processing your data...");
-        //    upload_blobs = true;
-        //    this.terminal == true;
-        //    total_time = max_time;
-        //}
 
         if (this.lives < this.prev_lives) {
-          //update_score("     " + this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-          update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-          this.prev_lives = this.lives;
+            if (this.lives != 1) {
+                changed = true;
+            }
+            else {
+                update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
+            }
+            this.prev_lives = this.lives;
+        }
+
+        if (changed == true) {
+            update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
         }
     }
 
@@ -15810,17 +15805,9 @@ Invaders = function() {
             upload_blobs = true;
         }
         else {
-            //console.log("what is happening " + this.lives);
-            //console.log("what is happening " + this.terminal);
             update_score("You lost all lives. Click new game to continue!");
-            //restart_bool = true;
-            //this.restart_stuff = false;
         }
     }
-
-    //if (this.frame == 0) {
-    //    this.restart_stuff = true;
-    //}
     this.frame++;
   };
 };
