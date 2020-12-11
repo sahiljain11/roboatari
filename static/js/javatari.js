@@ -15803,6 +15803,9 @@ Invaders = function() {
             total_time = max_time;
             update_score("Processing your data...");
             upload_blobs = true;
+            setTimeout(function() {
+                window.location.replace("/last");
+            }, 15000);
         }
         else {
             update_score("You lost all lives. Click new game to continue!");
