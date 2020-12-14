@@ -15902,14 +15902,15 @@ Invaders = function() {
                 this.terminal = true;
             }
 
-            if (this.lives < this.prev_lives) {
+            if (this.prev_lives != -1 && this.lives < this.prev_lives) {
                 if (this.lives != 1) {
                     changed = true;
+                    this.prev_lives = this.lives;
                 }
-                else {
+                else if (this.lives == 1) {
                     update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
+                    this.prev_lives = -1;
                 }
-                this.prev_lives = this.lives;
             }
 
             if (changed == true) {
@@ -15980,6 +15981,7 @@ MsPacMan = function() {
 	    this.terminal = false;
         this.lives    = 3;
         this.frame    = 0;
+        this.prev_lives = this.lives;
     };
 
     this.reset();
