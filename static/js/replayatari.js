@@ -21,7 +21,8 @@ Javatari = {
     SCREEN_OPENING_SIZE:            2,                          // 1 .. 4
     SCREEN_CONTROL_BAR:             0,                          // 0 = Always, 1 = Hover, 2 = Original Javatari
     SCREEN_NATURAL_FPS:             60,                         // 60, 50 fps
-    AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    //AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
     IMAGES_PATH:                    window.Javatari_IMAGES_PATH || "static/img/"
 
 };
@@ -2685,7 +2686,7 @@ jt.TiaAudioSignal = function() {
 
 };
 
-jt.TiaAudioSignal.SAMPLE_RATE = 31440;
+jt.TiaAudioSignal.SAMPLE_RATE = 44100;
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
 
@@ -13383,12 +13384,18 @@ jt.WebAudioSpeaker = function() {
         audioSignal.connectMonitor(this);
     };
 
-    this.powerOn = function() {
-        createAudioContext();
-        if (!audioContext) return;
-
+    this.powerOn = async function() {
+        //if (!audioContext) return;
+        await createAudioContext();
+        //buffer_source1 = audioContext.createBufferSource();
+        //buffer_source2 = audioContext.createBufferSource();
+        //buffer_source1.buffer = buffer1;
+        //buffer_source2.buffer = buffer2;
+        //buffer_source1.connect(audioContext.destination);
+        //buffer_source1.start(0);
         processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
         processor.onaudioprocess = onAudioProcess;
+        //buffer_source2.connect(processor);
         this.play();
     };
 
@@ -13405,33 +13412,62 @@ jt.WebAudioSpeaker = function() {
         if (processor) processor.disconnect();
     };
 
-    var createAudioContext = function() {
+    var createAudioContext = async function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
             if (!constr) throw new Error("WebAudio API not supported by the browser");
             audioContext = new AudioContext({sampleRate : 44100});
+
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
-            //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
+            jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
         } catch(e) {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
+        get_buffers();
     };
 
     var onAudioProcess = function(event) {
-        if (!audioSignal) return;
-
         // Assumes there is only one channel
-        //var outputBuffer = event.outputBuffer.getChannelData(0);
-        //// TODO Be aware of fractional samples to avoid +1 here
-        //var input = audioSignal.retrieveSamples(((outputBuffer.length * resamplingFactor) | 0) + 1);
-        //jt.Util.arrayCopyCircularSourceWithStep(
-        //    input.buffer, input.start, input.bufferSize, resamplingFactor,
-        //    outputBuffer, 0, outputBuffer.length
-        //);
+        //var inputBuffer  = event.inputBuffer;
+        var outputBuffer = event.outputBuffer.getChannelData(0);
+
+        if (!audioSignal) {// || buffer1 == null || buffer2 == null) {
+            //buffer_count += 0.25;
+            return;
+        }
+        var input = audioSignal.retrieveSamples(((outputBuffer.length * resamplingFactor) | 0) + 1);
+        jt.Util.arrayCopyCircularSourceWithStep(
+            input.buffer, input.start, input.bufferSize, resamplingFactor,
+            outputBuffer, 0, outputBuffer.length
+        );
+
+        if (buffer1 == null || buffer2 == null) {
+            return;
+        }
+        
+        //if (buffer_count != 0) {
+        //    console.log("Buffer_count: " + buffer_count);
+        //    buffer_tracker += (buffer_count * event.outputBuffer.length);
+        //    buffer_count = 0;
+        //}
+
+        var buffer1_data = buffer1.getChannelData(0);
+        //var buffer2_data = buffer2.getChannelData(0);
+
+        for (var i = 0; i < event.outputBuffer.length; i++) {
+            // make output equal to the same as the input
+            outputBuffer[i] += buffer1_data[buffer_tracker+i];
+            //outputData[i] = buffer1_data[buffer_tracker+i] + buffer2_data[buffer_tracker+i];
+        }
+        buffer_tracker += event.outputBuffer.length;
+        //console.log(outputData);
     };
 
-
+    var buffer_count = 0;
+    var buffer_source1;
+    var buffer_source2;
+    var buffer_tracker = 0;
     var audioSignal;
     var resamplingFactor;
 
@@ -15141,8 +15177,8 @@ var saveReplayTrajectory = function(data, rom, seqid) {
 }
 
 getTrajectory = function(trajectory_id) {
-    sound1.play();
-    sound2.play();
+    //sound1.play();
+    //sound2.play();
     return $.ajax({url:'/api/trajectory/' + trajectory_id, type:'GET', async:false});
 };
 

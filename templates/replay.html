@@ -23,8 +23,10 @@
     </head>
 
     <script>
+      var id = traj_id.slice(0, 10);
+      var id2 = traj_id.slice(10);
       var sound1 = new sound("../static/sound/" + traj_id + ".wav", false);
-      var sound2 = new sound("../static/sound/" + traj_id + "_atari.wav", false);
+      var sound2 = new sound("../static/sound/" + id + "_atari" + id2 + ".wav", false);
 
       function sound(src, loop) {
           this.sound = document.createElement("audio");
@@ -41,6 +43,56 @@
 	            this.sound.pause();
           }
       } 
+
+      var context1 = new AudioContext({sampleRate : 44100});
+      var context2 = new AudioContext({sampleRate : 44100});
+      var buffer1 = null;
+      var buffer2 = null;
+      //var merged_buffer  = null;
+
+      //async function merge_buffers_together() {
+      //  console.log("merging");
+      //  console.log(buffer1);
+      //  console.log(buffer2);
+      //}
+
+      async function get_sound_buffer(url, dest_buffer, context) {
+          return new Promise(async function(resolve, reject){
+              var request = new XMLHttpRequest();
+
+              request.open('GET', url, true);
+              request.responseType = 'arraybuffer';
+              request.onload = function() {
+                  var audioData = request.response;
+
+                  context.decodeAudioData(audioData, function(buffer) {
+                    if (dest_buffer == 1) {
+                      buffer1 = buffer;
+                      console.log("yay");
+                    }
+                    else {
+                      buffer2 = buffer;
+                      console.log("yay");
+                    }
+                    resolve(request.status)
+                    //if (buffer1 != null && buffer2 != null) {
+                    //  merge_buffers_together();
+                    //}
+                  }, function(e) {
+                    console.log("error");
+                    reject(request.status)
+                  });
+              }
+              request.send();
+          });
+      }
+
+      async function get_buffers() {
+        await get_sound_buffer("../static/sound/" + traj_id + ".wav", 1, context1);
+        await get_sound_buffer("../static/sound/" + id + "_atari" + id2 + ".wav", 2, context2);
+        console.log(buffer1);
+        console.log(buffer2);
+      }
 
     </script>
 
