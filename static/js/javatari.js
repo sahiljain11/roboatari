@@ -13671,7 +13671,7 @@ jt.WebAudioSpeaker = function() {
     };
 
     this.stop_recording = async function (k) {
-        mediaRecorder.stop();
+        //mediaRecorder.stop();
         key = k;
         await uploadAtariData();
     };
