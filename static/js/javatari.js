@@ -4567,7 +4567,7 @@ jt.AtariConsole = function() {
     };
 
     this.resetEnv = async function() {
-        console.log("RESETENV");
+        //console.log("RESETENV");
         if (mic_enabled == false) {
             window.location.replace("mic");
         }
@@ -4584,6 +4584,7 @@ jt.AtariConsole = function() {
             trajectory = {};
             self.started = true;
             self.game.reset();
+            started = true;
             return;
         }
     };
@@ -4611,7 +4612,6 @@ jt.AtariConsole = function() {
         timer_start = Date.now();
 
         self.recorder.stream = stream;
-        started = true;
 
         //jt.Util.log("Finished starting to record");
         self.start_recording_finished = true;
@@ -15510,8 +15510,6 @@ tripleIndexDecimalScore = function(lower_index, middle_index, higher_index, ram)
 
 var sequenceToServ = function(trajectory, state, game_id, final_score) {
   to_send = JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score});
-  console.log("self.console");
-  console.log(self.console);
   self.console.stop_recording_main(this.recorder, this.video, to_send);
   return;
   //return $.ajax({url:'/api/save', type:'POST', contentType:'application/json', data: JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score}), success:function(data){console.log('Sequence ' + data + ' saved.'); //window.location.href='/replay/'+data;
@@ -15886,7 +15884,7 @@ Invaders = function() {
             this.terminal = true;
         }
 
-        if (started == true && this.terminal == false) {
+        if (started == true && this.terminal == false && this.prev_lines != -1) {
             //update the time
             var curr_time = Date.now();
             total_time += curr_time - this.startTime;
@@ -15902,25 +15900,23 @@ Invaders = function() {
                 this.terminal = true;
             }
 
-            if (this.prev_lives != -1 && this.lives < this.prev_lives) {
-                if (this.lives != 1) {
-                    changed = true;
-                    this.prev_lives = this.lives;
-                }
-                else if (this.lives == 1) {
-                    update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
-                    this.prev_lives = -1;
-                }
+            if (this.lives < this.prev_lives) {
+                changed = true;
+                this.prev_lives = this.lives;
             }
 
-            if (changed == true) {
+            if (changed == true && this.lives > 1) {
                 update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+            }
+            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
+                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
             }
         }
 
-        if (this.terminal == true && started == true) {
+        if (this.terminal == true && started == true && this.prev_lives != -1) {
             file_count += 1;
             started = false;
+            this.prev_lives = -1;
             if (total_time >= max_time) {
                 total_time = max_time;
                 update_score("Processing your data...");
@@ -15981,7 +15977,7 @@ MsPacMan = function() {
 	    this.terminal = false;
         this.lives    = 3;
         this.frame    = 0;
-        this.prev_lives = this.lives;
+        this.prev_lives = 3;
     };
 
     this.reset();
@@ -16040,6 +16036,7 @@ MsPacMan = function() {
         }
 
         if (this.terminal == true && started == true) {
+            this.prev_lives = 3;
             file_count += 1;
             started = false;
             if (total_time >= max_time) {
