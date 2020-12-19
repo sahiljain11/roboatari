@@ -30,10 +30,14 @@
       var restart_bool = false;
       var restarted = false;
       //var save_the_event;
+      var clicked = false;
 
       var total_time = 0;
       var upload_blobs = false;  // to see if we can move on to the next html
       var file_count = 0;        // for upload file names
+      if (rom == "revenge" || rom == "qbert") {
+        file_count = 1;        // for upload file names
+      }
 
       var numUploaded = 0;
 
@@ -55,8 +59,9 @@
       var mic_enabled = false;
       let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
       .then(
-        function(s) {
+        async function(s) {
           mic_enabled = true;
+          await Javatari.room.console.resetEnv();
         }
       )
       .catch(

@@ -4510,14 +4510,14 @@ jt.AtariConsole = function() {
               }
             }
             if(!self.game.terminal) {
-              self.game.step(self.ram);
-              var frame_data = {};
-              frame_data['action'] = atariControlsToALE(frameActions, ctrls);
-              frame_data['keys_pressed'] = frameActions;
-              frame_data['reward'] = self.game.reward;
-              frame_data['terminal'] = self.game.terminal;
-              frame_data['score'] = self.game.score;
-              trajectory[self.game.frame-1] = frame_data;
+                self.game.step(self.ram);
+                var frame_data = {};
+                frame_data['action'] = atariControlsToALE(frameActions, ctrls);
+                frame_data['keys_pressed'] = frameActions;
+                frame_data['reward'] = self.game.reward;
+                frame_data['terminal'] = self.game.terminal;
+                frame_data['score'] = self.game.score;
+                trajectory[self.game.frame-1] = frame_data;
               //if(self.game.frame % 60 == 0 && found == false) {
                 //var score = self.started ? self.game.score:0;
                 //if (finished_uploading == false && is_zero == true) {
@@ -4552,10 +4552,9 @@ jt.AtariConsole = function() {
               //        ////restarted = true;
               //      }, 10000);
               //}
-            } 
+            }
             controlsSocket.clockPulse();
-            if(isReset() || restarted == true) {
-                console.log("resetting");
+            if(isReset()) {//|| restarted == true) {
               self.resetEnv();
               //restarted = false;
             }
@@ -4567,7 +4566,7 @@ jt.AtariConsole = function() {
     };
 
     this.resetEnv = async function() {
-        //console.log("RESETENV");
+        console.log("RESETENV");
         if (mic_enabled == false) {
             window.location.replace("mic");
         }
@@ -4637,13 +4636,13 @@ jt.AtariConsole = function() {
         //upload video stream
         var stringname = "audio/wav"
         //var keywebmname = key + "recording";
-        var keywebmname = s3_code + "_" + file_count + ".wav";
+        var keywebmname = rom + "_" + s3_code + "_" + file_count + ".wav";
         await getSignedRequest(blob, stringname, keywebmname, false);
 
         //upload logging file
         var logname = "application/json";
         //var keyjsonname = key + "logging"
-        var keyjsonname = s3_code + "_" + file_count + ".json";
+        var keyjsonname = rom + "_" + s3_code + "_" + file_count + ".json";
         await getSignedRequest(to_send, logname, keyjsonname, true);
 
         //$("#mturk-key").css("background-color", "green");
@@ -13647,7 +13646,7 @@ jt.WebAudioSpeaker = function() {
             
         var atarisound = new Blob([view], {'type' : 'audio/wav'});
         var atariname = "audio/wav";
-        var keyatariname = s3_code + "_atari_" + file_count + ".wav";
+        var keyatariname = rom + "_" + s3_code + "_atari_" + file_count + ".wav";
         await getSignedRequest(atarisound, atariname, keyatariname, false);
         leftArray = [];
         arrayLength = 0;
@@ -15663,10 +15662,10 @@ Qbert = function() {
         this.lives      = 4;
         this.frame      = 0;
 
-        this.prev_lives = 3;
+        this.prev_lives = this.lives;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
+        update_score(calc.toFixed(0) + " min. remaining : 4 lives left");
     }
 
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
@@ -15691,7 +15690,6 @@ Qbert = function() {
 	    }
     
         this.last_lives = livesAsChar;
-
         // update the reward
         // Ignore reward if reset the game via the fire button; otherwise the agent 
         //  gets a big negative reward on its last step 
@@ -15704,9 +15702,7 @@ Qbert = function() {
         else {
             this.reward = 0;
         }
-
-        // do UI and upload stuff
-        if (started == true && this.terminal == false) {
+        if (started == true && this.terminal == false && this.prev_lines != -1) {
             //update the time
             var curr_time = Date.now();
             total_time += curr_time - this.startTime;
@@ -15723,23 +15719,22 @@ Qbert = function() {
             }
 
             if (this.lives < this.prev_lives) {
-                if (this.lives != 1) {
-                    changed = true;
-                }
-                else {
-                    update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
-                }
+                changed = true;
                 this.prev_lives = this.lives;
             }
 
-            if (changed == true) {
+            if (changed == true && this.lives > 1) {
                 update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+            }
+            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
+                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
             }
         }
 
-        if (this.terminal == true && started == true) {
+        if (this.terminal == true && started == true && this.prev_lives != -1) {
             file_count += 1;
             started = false;
+            this.prev_lives = -1;
             if (total_time >= max_time) {
                 total_time = max_time;
                 update_score("Processing your data...");
@@ -15752,6 +15747,7 @@ Qbert = function() {
                 update_score("You lost all lives. Click new game to continue!");
             }
         }
+
         this.frame++;
 	};
 };
@@ -15760,6 +15756,7 @@ Montezuma = function() {
     this.id = 4;
     this.prev = MIN_TILL_COMPLETION;
     var max_time = MIN_TILL_COMPLETION * 60000;
+    this.reset_count = 0;
 
     this.reset = function() {  
         this.reward   = 0;
@@ -15771,13 +15768,16 @@ Montezuma = function() {
         this.prev_lives = 6;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
+        update_score(calc.toFixed(0) + " min. remaining : 6 lives left");
+
+        this.reset_count += 1;
     };   
     this.reset();
 
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
 
     this.step = function(ram) {
+        // THIS ROM STARTS RIGHT OFF THE BACK UNLIKE SPACE INVADERS
     	var score = tripleIndexDecimalScore('0x95', '0x94', '0x93', ram); 
     	var reward = score - this.score;
     	this.reward = reward;
@@ -15786,16 +15786,15 @@ Montezuma = function() {
 	    var new_lives = ram.read('0xBA');
 	    var some_byte = ram.read('0xFE');
     	this.terminal = new_lives == 0 && some_byte == '0x60';
-
-    	// Actually does not go up to 8, but that's alright
-        this.lives = (new_lives & 0x7) + 1;
         
         // UI stuff
         if(total_time >= max_time) {
             this.terminal = true;
         }
 
-        if (started == true && this.terminal == false) {
+    	// Actually does not go up to 8, but that's alright
+        this.lives = (new_lives & 0x7) + 1;
+        if (started == true && this.terminal == false && this.prev_lines != -1) {
             //update the time
             var curr_time = Date.now();
             total_time += curr_time - this.startTime;
@@ -15812,23 +15811,22 @@ Montezuma = function() {
             }
 
             if (this.lives < this.prev_lives) {
-                if (this.lives != 1) {
-                    changed = true;
-                }
-                else {
-                    update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
-                }
+                changed = true;
                 this.prev_lives = this.lives;
             }
 
-            if (changed == true) {
+            if (changed == true && this.lives > 1) {
                 update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+            }
+            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
+                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
             }
         }
 
-        if (this.terminal == true && started == true) {
+        if (this.terminal == true && started == true && this.prev_lives != -1) {
             file_count += 1;
             started = false;
+            this.prev_lives = -1;
             if (total_time >= max_time) {
                 total_time = max_time;
                 update_score("Processing your data...");
@@ -15841,6 +15839,7 @@ Montezuma = function() {
                 update_score("You lost all lives. Click new game to continue!");
             }
         }
+
         this.frame++;
 	};
 };
@@ -15977,7 +15976,11 @@ MsPacMan = function() {
 	    this.terminal = false;
         this.lives    = 3;
         this.frame    = 0;
+
         this.prev_lives = 3;
+        this.startTime = Date.now();
+        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
     };
 
     this.reset();
@@ -16004,7 +16007,7 @@ MsPacMan = function() {
             this.terminal = true;
         }
 
-        if (started == true && this.terminal == false) {
+        if (started == true && this.terminal == false && this.prev_lines != -1) {
             //update the time
             var curr_time = Date.now();
             total_time += curr_time - this.startTime;
@@ -16021,24 +16024,22 @@ MsPacMan = function() {
             }
 
             if (this.lives < this.prev_lives) {
-                if (this.lives != 1) {
-                    changed = true;
-                }
-                else {
-                    update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " life left");
-                }
+                changed = true;
                 this.prev_lives = this.lives;
             }
 
-            if (changed == true) {
+            if (changed == true && this.lives > 1) {
                 update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
+            }
+            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
+                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
             }
         }
 
-        if (this.terminal == true && started == true) {
-            this.prev_lives = 3;
+        if (this.terminal == true && started == true && this.prev_lives != -1) {
             file_count += 1;
             started = false;
+            this.prev_lives = -1;
             if (total_time >= max_time) {
                 total_time = max_time;
                 update_score("Processing your data...");

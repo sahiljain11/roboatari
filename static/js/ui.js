@@ -23,9 +23,12 @@ window.onload = function() {
   document.getElementById("javatari-screen").addEventListener('blur', function(event) {
       setTimeout(function() {focus_console();}, 30);
   });
+  //if (rom != "revenge" && rom != "qbert") {
 	setup_reset_btn(document.getElementById("reset"));
+  //}
   $("#game-desc").html(getGameDesc(rom));
   if(rom != '') {
+  //if (rom != "revenge" && rom != "qbert") {
     load_rom(rom); 
   }
 
@@ -73,7 +76,11 @@ var setup_reset_btn = function(but) {
   but.addEventListener("mousedown", function (e) {
     //console.log(e);
     //save_the_event = e;
-	if (e.preventDefault) e.preventDefault();
+  if (e.preventDefault) e.preventDefault();
+    //if (clicked == false) {
+    //  load_rom(rom); 
+    //}
+    clicked = true;
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);
     Javatari.room.console.resetEnv();

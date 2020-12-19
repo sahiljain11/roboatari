@@ -22,8 +22,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 sess = Session()
 sess.init_app(app)
 
-
-
 @app.route('/')
 def instruct():
   return render_template('instruct.html')
@@ -51,12 +49,12 @@ def last():
 
 @app.route('/game')
 def game():
-  rom = 'spaceinvaders'
+  #rom = 'spaceinvaders'
+  rom = 'revenge'
+  #rom = "mspacman"
   session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
   key = session["key"]
   return render_template('index.html', rom=rom, ai_score=0, key=key)
-
-
 
 
 def ran_gen(size, chars=string.ascii_uppercase + string.digits):
