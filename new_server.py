@@ -29,11 +29,15 @@ def instruct():
 # both do the same thing. functionally the same, but I needed another for a href call in JS
 @app.route('/start')
 def start():
-  return render_template('instruct.html')
+  rom = os.environ['ROM']
+  if rom == 'spaceinvaders':
+    return render_template('instruct.html')
+  if rom == 'mspacman':
+    return render_template('instruct_pac.html')
 
 @app.route('/trial')
 def trial():
-  rom = 'spaceinvaders'
+  rom = os.environ['ROM']
   return render_template('trial.html', rom=rom, ai_score=0)
 
 @app.route('/after_trial')
@@ -50,7 +54,8 @@ def last():
 @app.route('/game')
 def game():
   #rom = 'spaceinvaders'
-  rom = 'revenge'
+  rom = os.environ['ROM']
+  #rom = 'revenge'
   #rom = "mspacman"
   session["key"] = ran_gen(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
   key = session["key"]
@@ -114,7 +119,7 @@ def replay(traj_id):
 
 @app.route('/api/trajectory/<trajectory_id>')
 def get_trajectory(trajectory_id):
-  rom = 'spaceinvaders'
+  rom = os.environ['ROM']
   path = os.path.abspath(os.getcwd()) + "/" + trajectory_id + ".json"
 
   with open(path) as f:
