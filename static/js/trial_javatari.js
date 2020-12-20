@@ -15713,8 +15713,11 @@ Pinball = function() {
     var lives_byte = ram.read('0x99') & 0x7;
     // And of course, we keep the 'extra ball' counter in a different memory location
     var extra_ball = ram.read('0xA8') & 0x1;
+    this.lives = 4 + extra_ball - lives_byte;
 
-		this.lives = 4 + extra_ball - lives_byte;
+    if(tmp == 128 || Date.now() - this.startTime > 60000) {
+      this.terminal = true;
+    }
     this.frame++;
 	};
 };
@@ -15723,10 +15726,13 @@ MsPacMan = function() {
   this.id = 2;
 	this.reset = function(ram) {
     this.reward   = 0;
-	  this.score    = 0;
-	  this.terminal = false;
+	this.score    = 0;
+	this.terminal = false;
     this.lives    = 3;
     this.frame    = 0;
+    this.startTime = Date.now();
+    update_score("Click \"Start new game\" to begin!");
+    console.log("update score");
   };
 
   this.reset();
@@ -15747,7 +15753,11 @@ MsPacMan = function() {
     var death_timer = ram.read('0xA7');
     this.terminal = (lives_byte == 0 && death_timer == '0x53');
 
-    this.lives = (lives_byte & 0x7) + 1;     
+    this.lives = (lives_byte & 0x7) + 1;
+
+    if(Date.now() - this.startTime > 60000) {
+      this.terminal = true;
+    }
     this.frame++;
   };
 };
