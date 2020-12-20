@@ -15737,8 +15737,6 @@ MsPacMan = function() {
         this.frame    = 0;
         this.startTime = Date.now();
         update_score("Click \"Start new game\" to begin!");
-        console.log("update score");
-        console.log("im actually going insane");
     };
 
     this.reset();
