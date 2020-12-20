@@ -15732,6 +15732,7 @@ MsPacMan = function() {
     this.frame    = 0;
     this.startTime = Date.now();
     update_score("Click \"Start new game\" to begin!");
+    console.log("update score");
   };
 
   this.reset();
@@ -15754,7 +15755,7 @@ MsPacMan = function() {
 
     this.lives = (lives_byte & 0x7) + 1;
 
-    if(tmp == 128 || Date.now() - this.startTime > 60000) {
+    if(Date.now() - this.startTime > 60000) {
       this.terminal = true;
     }
     this.frame++;
