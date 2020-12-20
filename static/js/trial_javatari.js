@@ -15625,66 +15625,71 @@ Qbert = function() {
 };
 
 Montezuma = function() {
-  this.id = 4;
-		this.reset = function() {  
-      this.reward   = 0;
-      this.score    = 0;
-      this.terminal = false;
-		  this.lives    = 6;
-      this.frame    = 0;
+    this.id = 4;
+    this.reset = function() {  
+        this.reward   = 0;
+        this.score    = 0;
+        this.terminal = false;
+        this.lives    = 6;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        update_score("Click \"Start new game\" to begin!");
     };   
     this.reset();
-  this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
+    this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
 
-		this.step = function(ram) {
+    this.step = function(ram) {
     	var score = tripleIndexDecimalScore('0x95', '0x94', '0x93', ram); 
     	var reward = score - this.score;
     	this.reward = reward;
     	this.score = score;
 
-			var new_lives = ram.read('0xBA');
-			var some_byte = ram.read('0xFE');
+	    var new_lives = ram.read('0xBA');
+	    var some_byte = ram.read('0xFE');
     	this.terminal = new_lives == 0 && some_byte == '0x60';
 
     	// Actually does not go up to 8, but that's alright
     	this.lives = (new_lives & 0x7) + 1;
-      this.frame++;
+        if(Date.now() - this.startTime > 60000) {
+            this.terminal = true;
+        }
+        this.frame++;
 	  };
 };
 
 Invaders = function() {
-  this.id = 3;
+    this.id = 3;
 	this.reset = function() {
-    this.reward   = 0;
-	  this.score    = 0;
-	  this.terminal = false;
-    this.lives    = 3;
-    this.frame    = 0;
-    this.startTime = Date.now();
-    update_score("Click \"Start new game\" to begin!");
-  };
-  this.reset();
+        this.reward   = 0;
+	    this.score    = 0;
+	    this.terminal = false;
+        this.lives    = 3;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        update_score("Click \"Start new game\" to begin!");
+    };
+    this.reset();
 	this.ADDITIONAL_RESET = null;
-  this.step = function(ram) {
-    var score = doubleIndexDecimalScore('0xE8', '0xE6', ram);
-    // reward cannot get negative in this game. When it does, it means that the score has looped (overflow)
-    this.reward = score - this.score;
-    if(this.reward < 0) {
-      // 10000 is the highest possible score
-      var maximumScore = 10000;
-      this.reward = (maximumScore - this.score) + score; 
-    }
-    this.score = score;
-    this.lives = ram.read('0xC9');
+    this.step = function(ram) {
+        var score = doubleIndexDecimalScore('0xE8', '0xE6', ram);
+        // reward cannot get negative in this game. When it does, it means that the score has looped (overflow)
+        this.reward = score - this.score;
+        if(this.reward < 0) {
+          // 10000 is the highest possible score
+          var maximumScore = 10000;
+          this.reward = (maximumScore - this.score) + score; 
+        }
+        this.score = score;
+        this.lives = ram.read('0xC9');
   
-    tmp = ram.read('0x98') & 0x80;
-    this.terminal = tmp || this.lives == 0;
-    if(tmp == 128 || Date.now() - this.startTime > 60000) {
-      this.terminal = true;
-    }
-            
-    this.frame++;
-  };
+        tmp = ram.read('0x98') & 0x80;
+        this.terminal = tmp || this.lives == 0;
+        if(tmp == 128 || Date.now() - this.startTime > 60000) {
+          this.terminal = true;
+        }
+
+        this.frame++;
+    };
 };
 
 Pinball = function() {
@@ -15723,43 +15728,43 @@ Pinball = function() {
 };
 
 MsPacMan = function() {
-  this.id = 2;
+    this.id = 2;
 	this.reset = function(ram) {
-    this.reward   = 0;
-	this.score    = 0;
-	this.terminal = false;
-    this.lives    = 3;
-    this.frame    = 0;
-    this.startTime = Date.now();
-    update_score("Click \"Start new game\" to begin!");
-    console.log("update score");
-  };
+        this.reward   = 0;
+	    this.score    = 0;
+	    this.terminal = false;
+        this.lives    = 3;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        update_score("Click \"Start new game\" to begin!");
+        console.log("update score");
+    };
 
-  this.reset();
-  this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
+    this.reset();
+    this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
 
-  this.step = function(ram){
-    var score = tripleIndexDecimalScore('0xF8', '0xF9', '0xFA', ram);
-    // crazy score when we load the cartridge and the games have not
-    // started yet
-    //if (score == 1650000) {
-    //  score = 0;
-    //}
-    var reward = score - this.score;
-    this.reward = reward;
-    this.score = score;
+    this.step = function(ram){
+        var score = tripleIndexDecimalScore('0xF8', '0xF9', '0xFA', ram);
+        // crazy score when we load the cartridge and the games have not
+        // started yet
+        //if (score == 1650000) {
+        //  score = 0;
+        //}
+        var reward = score - this.score;
+        this.reward = reward;
+        this.score = score;
 
-    var lives_byte = ram.read('0xFB') & 0xF;
-    var death_timer = ram.read('0xA7');
-    this.terminal = (lives_byte == 0 && death_timer == '0x53');
+        var lives_byte = ram.read('0xFB') & 0xF;
+        var death_timer = ram.read('0xA7');
+        this.terminal = (lives_byte == 0 && death_timer == '0x53');
 
-    this.lives = (lives_byte & 0x7) + 1;
+        this.lives = (lives_byte & 0x7) + 1;
 
-    if(Date.now() - this.startTime > 60000) {
-      this.terminal = true;
-    }
-    this.frame++;
-  };
+        if(Date.now() - this.startTime > 60000) {
+          this.terminal = true;
+        }
+        this.frame++;
+    };
 };
 
 var envForGame = function(title) {
