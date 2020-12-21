@@ -45,9 +45,11 @@
       .then(
         async function(s) {
           mic_enabled = true;
-          controlsSocket.controlStateChanged(control, true);
-          await Javatari.room.console.resetEnv();
-          controlsSocket.controlStateChanged(control, false);
+          if (rom == "revenge") {
+            controlsSocket.controlStateChanged(control, true);
+            await Javatari.room.console.resetEnv();
+            controlsSocket.controlStateChanged(control, false);
+          }
         }
       )
       .catch(
