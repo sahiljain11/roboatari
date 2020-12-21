@@ -15651,9 +15651,6 @@ isNumeric = function(n) {
 
 Qbert = function() {
     this.id = 0;
-    this.prev = MIN_TILL_COMPLETION;
-    var max_time = MIN_TILL_COMPLETION * 60000;
-
     this.reset = function() {
         this.reward     = 0;
         this.score      = 0;
@@ -15661,11 +15658,6 @@ Qbert = function() {
         this.last_lives = 2;
         this.lives      = 4;
         this.frame      = 0;
-
-        this.prev_lives = this.lives;
-        this.startTime = Date.now();
-        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 4 lives left");
     }
 
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
@@ -15702,51 +15694,6 @@ Qbert = function() {
         else {
             this.reward = 0;
         }
-        if (started == true && this.terminal == false && this.prev_lines != -1) {
-            //update the time
-            var curr_time = Date.now();
-            total_time += curr_time - this.startTime;
-            this.startTime = curr_time;
-
-            var calc = Math.ceil((max_time - total_time) / 60000);
-            var changed = false;
-            if (calc > 0 && this.prev != calc) {
-                changed = true;
-                this.prev = calc;
-            }
-            else if (calc == 0) {
-                this.terminal = true;
-            }
-
-            if (this.lives < this.prev_lives) {
-                changed = true;
-                this.prev_lives = this.lives;
-            }
-
-            if (changed == true && this.lives > 1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-            }
-            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
-            }
-        }
-
-        if (this.terminal == true && started == true && this.prev_lives != -1) {
-            file_count += 1;
-            started = false;
-            this.prev_lives = -1;
-            if (total_time >= max_time) {
-                total_time = max_time;
-                update_score("Processing your data...");
-                upload_blobs = true;
-                setTimeout(function() {
-                    window.location.replace("/last");
-                }, 15000);
-            }
-            else {
-                update_score("You lost all lives. Click new game to continue!");
-            }
-        }
 
         this.frame++;
 	};
@@ -15755,7 +15702,6 @@ Qbert = function() {
 Montezuma = function() {
     this.id = 4;
     this.prev = MIN_TILL_COMPLETION;
-    var max_time = MIN_TILL_COMPLETION * 60000;
     this.reset_count = 0;
 
     this.reset = function() {  
@@ -15768,7 +15714,7 @@ Montezuma = function() {
         this.prev_lives = 6;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 6 lives left");
+        update_score(calc.toFixed(0) + " min. remaining : 6 live(s) left");
 
         this.reset_count += 1;
     };   
@@ -15794,50 +15740,21 @@ Montezuma = function() {
 
     	// Actually does not go up to 8, but that's alright
         this.lives = (new_lives & 0x7) + 1;
-        if (started == true && this.terminal == false && this.prev_lines != -1) {
-            //update the time
-            var curr_time = Date.now();
-            total_time += curr_time - this.startTime;
-            this.startTime = curr_time;
 
-            var calc = Math.ceil((max_time - total_time) / 60000);
-            var changed = false;
-            if (calc > 0 && this.prev != calc) {
-                changed = true;
-                this.prev = calc;
-            }
-            else if (calc == 0) {
-                this.terminal = true;
-            }
-
-            if (this.lives < this.prev_lives) {
-                changed = true;
-                this.prev_lives = this.lives;
-            }
-
-            if (changed == true && this.lives > 1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-            }
-            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
-            }
+        if (this.terminal == true) {
+            this.lives = 0;
         }
 
-        if (this.terminal == true && started == true && this.prev_lives != -1) {
-            file_count += 1;
-            started = false;
-            this.prev_lives = -1;
-            if (total_time >= max_time) {
-                total_time = max_time;
-                update_score("Processing your data...");
-                upload_blobs = true;
-                setTimeout(function() {
-                    window.location.replace("/last");
-                }, 15000);
-            }
-            else {
-                update_score("You lost all lives. Click new game to continue!");
-            }
+        const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
+        this.terminal   = ret[0];
+        this.prev_lives = ret[1];
+        this.startTime  = ret[2];
+        this.prev       = ret[3];
+        this.lives      = ret[4];
+
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives);
+        if (this.terminal == true) {
+            this.lives = 1;
         }
 
         this.frame++;
@@ -15847,7 +15764,6 @@ Montezuma = function() {
 Invaders = function() {
     this.id = 3;
     this.prev = MIN_TILL_COMPLETION;
-    var max_time = MIN_TILL_COMPLETION * 60000;
 
 	this.reset = function() {
         this.reward   = 0;
@@ -15859,7 +15775,7 @@ Invaders = function() {
         this.prev_lives = 3;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
+        update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
     };
 
     this.reset();
@@ -15879,58 +15795,24 @@ Invaders = function() {
         tmp = ram.read('0x98') & 0x80;
         this.terminal = tmp || this.lives == 0;
 
-        if(tmp == 128 || total_time >= max_time) {
+        if (tmp == 128 || total_time >= max_time) {
             this.terminal = true;
         }
 
-        if (started == true && this.terminal == false && this.prev_lines != -1) {
-            //update the time
-            var curr_time = Date.now();
-            total_time += curr_time - this.startTime;
-            this.startTime = curr_time;
+        const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
+        //console.log(ret[0] + " " + ret[1] + " " + ret[2] + " " + ret[3] + " " + ret[4]);
+        this.terminal   = ret[0];
+        this.prev_lives = ret[1];
+        this.startTime  = ret[2];
+        this.prev       = ret[3];
+        this.lives      = ret[4];
 
-            var calc = Math.ceil((max_time - total_time) / 60000);
-            var changed = false;
-            if (calc > 0 && this.prev != calc) {
-                changed = true;
-                this.prev = calc;
-            }
-            else if (calc == 0) {
-                this.terminal = true;
-            }
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
 
-            if (this.lives < this.prev_lives) {
-                changed = true;
-                this.prev_lives = this.lives;
-            }
-
-            if (changed == true && this.lives > 1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-            }
-            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
-            }
-        }
-
-        if (this.terminal == true && started == true && this.prev_lives != -1) {
-            file_count += 1;
-            started = false;
-            this.prev_lives = -1;
-            if (total_time >= max_time) {
-                total_time = max_time;
-                update_score("Processing your data...");
-                upload_blobs = true;
-                setTimeout(function() {
-                    window.location.replace("/last");
-                }, 15000);
-            }
-            else {
-                update_score("You lost all lives. Click new game to continue!");
-            }
-        }
         this.frame++;
     };
 };
+
 
 Pinball = function() {
     // don't need to worry about this one
@@ -15968,7 +15850,6 @@ Pinball = function() {
 MsPacMan = function() {
     this.id = 2;
     this.prev = MIN_TILL_COMPLETION;
-    var max_time = MIN_TILL_COMPLETION * 60000;
 
     this.reset = function(ram) {
         this.reward   = 0;
@@ -15980,7 +15861,7 @@ MsPacMan = function() {
         this.prev_lives = 3;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
-        update_score(calc.toFixed(0) + " min. remaining : 3 lives left");
+        update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
     };
 
     this.reset();
@@ -16007,51 +15888,15 @@ MsPacMan = function() {
             this.terminal = true;
         }
 
-        if (started == true && this.terminal == false && this.prev_lines != -1) {
-            //update the time
-            var curr_time = Date.now();
-            total_time += curr_time - this.startTime;
-            this.startTime = curr_time;
+        const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
+        this.terminal   = ret[0];
+        this.prev_lives = ret[1];
+        this.startTime  = ret[2];
+        this.prev       = ret[3];
+        this.lives      = ret[4];
 
-            var calc = Math.ceil((max_time - total_time) / 60000);
-            var changed = false;
-            if (calc > 0 && this.prev != calc) {
-                changed = true;
-                this.prev = calc;
-            }
-            else if (calc == 0) {
-                this.terminal = true;
-            }
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives);
 
-            if (this.lives < this.prev_lives) {
-                changed = true;
-                this.prev_lives = this.lives;
-            }
-
-            if (changed == true && this.lives > 1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : " + this.lives + " lives left");
-            }
-            else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
-                update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
-            }
-        }
-
-        if (this.terminal == true && started == true && this.prev_lives != -1) {
-            file_count += 1;
-            started = false;
-            this.prev_lives = -1;
-            if (total_time >= max_time) {
-                total_time = max_time;
-                update_score("Processing your data...");
-                upload_blobs = true;
-                setTimeout(function() {
-                    window.location.replace("/last");
-                }, 15000);
-            }
-            else {
-                update_score("You lost all lives. Click new game to continue!");
-            }
-        }
         this.frame++;
     };
 };

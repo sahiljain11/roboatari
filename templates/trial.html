@@ -43,8 +43,11 @@
       var mic_enabled = false;
       let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
       .then(
-        function(s) {
+        async function(s) {
           mic_enabled = true;
+          controlsSocket.controlStateChanged(control, true);
+          await Javatari.room.console.resetEnv();
+          controlsSocket.controlStateChanged(control, false);
         }
       )
       .catch(

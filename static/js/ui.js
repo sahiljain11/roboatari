@@ -28,7 +28,7 @@ window.onload = function() {
   //}
   $("#game-desc").html(getGameDesc(rom));
   if(rom != '') {
-  //if (rom != "revenge" && rom != "qbert") {
+  //if(rom != '' && rom != "revenge" && rom != "qbert") {
     load_rom(rom); 
   }
 
