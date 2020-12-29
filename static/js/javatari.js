@@ -4510,6 +4510,10 @@ jt.AtariConsole = function() {
               }
             }
             if(!self.game.terminal) {
+                if (started == true) {
+                    time_array.push(Date.now() - time_helper);
+                }
+
                 self.game.step(self.ram);
                 var frame_data = {};
                 frame_data['action'] = atariControlsToALE(frameActions, ctrls);
@@ -4566,7 +4570,7 @@ jt.AtariConsole = function() {
     };
 
     this.resetEnv = async function() {
-        console.log("RESETENV");
+        //console.log("RESETENV");
         if (mic_enabled == false) {
             window.location.replace("mic");
         }
@@ -4584,6 +4588,7 @@ jt.AtariConsole = function() {
             self.started = true;
             self.game.reset();
             started = true;
+            time_helper = Date.now();
             return;
         }
     };
@@ -5200,12 +5205,14 @@ jt.AtariConsole = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
         started = false;
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
-                                  'game_id':self.game_id, 'final_score': self.game.score});
+                                  'game_id':self.game_id, 'final_score': self.game.score,
+                                  'time_stamp:': time_array});
         if (clicked == true) {
             $("#reset").css("background-color", "#FF9900");
             $("#reset").html("Start new game (or press F12)");
             self.stop_recording_main(to_send)
         }
+        time_array = [];
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
     }
