@@ -15759,6 +15759,12 @@ Montezuma = function() {
             this.lives = 0;
         }
 
+        if(total_time >= max_time) {
+            this.terminal = true;
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
+
         this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
         if (this.terminal == true) {
             this.lives = 1;
@@ -15813,6 +15819,12 @@ Invaders = function() {
         this.startTime  = ret[2];
         this.prev       = ret[3];
         this.lives      = ret[4];
+
+        if(total_time >= max_time) {
+            this.terminal = true;
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
 
         this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
 
@@ -15901,6 +15913,12 @@ MsPacMan = function() {
         this.startTime  = ret[2];
         this.prev       = ret[3];
         this.lives      = ret[4];
+
+        if(total_time >= max_time) {
+            this.terminal = true;
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
 
         this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
 

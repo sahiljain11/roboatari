@@ -111,10 +111,10 @@ body {
 	font-weight:bold;
 	float:left;
 	margin-right:10px;
-  background-color:green;
+  /*background-color:green;*/
 	width:390px;
 	line-height: 30px;
-  /*background-color:#FF9900;*/
+  background-color:#FF9900;
 }
 
 #about-btn {

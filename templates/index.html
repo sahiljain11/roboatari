@@ -24,7 +24,7 @@
     </head>
 
     <script>
-        const MIN_TILL_COMPLETION = 10;
+        const MIN_TILL_COMPLETION = 1;
         var max_time = MIN_TILL_COMPLETION * 60000;
 
         var timer_start = 0;
@@ -69,6 +69,7 @@
               await Javatari.room.console.resetEnv();
               controlsSocket.controlStateChanged(control, false);
               clicked = true;
+              $("#reset").css("background-color", "green");
             }
           }
         )
@@ -119,8 +120,8 @@
         }
 
         var terminating_timestep = function(terminal, prev_lives, lives) {
+            console.log("terminating_timestep: " + prev_lives + " " + lives + " ");
             if (terminal == true && started == true && prev_lives != -1 && lives == 0) {
-                console.log("terminating_timestep: " + prev_lives + " " + lives + " ");
                 file_count += 1;
                 started = false;
                 prev_lives = -1;

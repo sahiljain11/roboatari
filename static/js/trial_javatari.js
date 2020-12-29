@@ -15635,7 +15635,7 @@ Montezuma = function() {
         this.lives    = 6;
         this.frame    = 0;
         this.startTime = Date.now();
-        update_score("Click \"Start new game\" to begin!");
+        update_score("Allow microphone access to begin!");
     };   
     this.reset();
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
