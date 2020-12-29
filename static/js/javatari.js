@@ -5201,7 +5201,10 @@ jt.AtariConsole = function() {
         started = false;
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score});
-        self.stop_recording_main(to_send)
+        if (clicked == true) {
+            $("#reset").css("background-color", "#FF9900");
+            self.stop_recording_main(to_send)
+        }
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
     }
@@ -15752,7 +15755,11 @@ Montezuma = function() {
         this.prev       = ret[3];
         this.lives      = ret[4];
 
-        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives);
+        if (this.terminal == true) {
+            this.lives = 0;
+        }
+
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
         if (this.terminal == true) {
             this.lives = 1;
         }
@@ -15895,7 +15902,7 @@ MsPacMan = function() {
         this.prev       = ret[3];
         this.lives      = ret[4];
 
-        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives);
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
 
         this.frame++;
     };

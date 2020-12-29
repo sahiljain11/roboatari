@@ -37,6 +37,7 @@
       var arrayLength = 0;
 
       var started = false;
+      var clicked = false; // will turn true when the user hits the button (or a simulated click occurs)
 
       var finished_uploading = false;
       var found = false;
@@ -46,9 +47,11 @@
         async function(s) {
           mic_enabled = true;
           if (rom == "revenge") {
+            // simulate a click
             controlsSocket.controlStateChanged(control, true);
             await Javatari.room.console.resetEnv();
             controlsSocket.controlStateChanged(control, false);
+            clicked = true;
           }
         }
       )

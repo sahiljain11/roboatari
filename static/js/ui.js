@@ -80,6 +80,7 @@ var setup_reset_btn = function(but) {
     //if (clicked == false) {
     //  load_rom(rom); 
     //}
+    $("#reset").css("background-color", "green");
     clicked = true;
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);

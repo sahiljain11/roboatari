@@ -32,14 +32,14 @@
         var restart_bool = false;
         var restarted = false;
         //var save_the_event;
-        var clicked = false;
+        var clicked = false; // will turn true when the user hits the button (or a simulated click occurs)
 
         var total_time = 0;
         var upload_blobs = false;  // to see if we can move on to the next html
         var file_count = 0;        // for upload file names
-        if (rom == "revenge" || rom == "qbert") {
-          file_count = 1;        // for upload file names
-        }
+        //if (rom == "revenge" || rom == "qbert") {
+        //  file_count = 1;        // for upload file names
+        //}
 
         var numUploaded = 0;
 
@@ -64,9 +64,11 @@
           async function(s) {
             mic_enabled = true;
             if (rom == "revenge") {
+              // simulate a click
               controlsSocket.controlStateChanged(control, true);
               await Javatari.room.console.resetEnv();
               controlsSocket.controlStateChanged(control, false);
+              clicked = true;
             }
           }
         )
@@ -118,6 +120,7 @@
 
         var terminating_timestep = function(terminal, prev_lives, lives) {
             if (terminal == true && started == true && prev_lives != -1 && lives == 0) {
+                console.log("terminating_timestep: " + prev_lives + " " + lives + " ");
                 file_count += 1;
                 started = false;
                 prev_lives = -1;

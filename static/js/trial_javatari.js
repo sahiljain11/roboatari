@@ -4593,35 +4593,35 @@ jt.AtariConsole = function() {
 
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
-        var key;
-        fetch('/key', {
-            method: 'GET'
-        }).then(function (response) {
-            return response.json();
-        }).then(async function(json) {
+        //var key;
+        //fetch('/key', {
+        //    method: 'GET'
+        //}).then(function (response) {
+        //    return response.json();
+        //}).then(async function(json) {
 
-            key = json.key;
-            await Javatari.room.speaker.stop_recording(key);
+        //    key = json.key;
+        //    await Javatari.room.speaker.stop_recording(key);
 
-            //upload video stream
-            var stringname = "audio/wav"
-            //var keywebmname = key + "recording";
-            var keywebmname = key + ".wav";
-            //getSignedRequest(blob, stringname, keywebmname, false);
+        //    //upload video stream
+        //    var stringname = "audio/wav"
+        //    //var keywebmname = key + "recording";
+        //    var keywebmname = key + ".wav";
+        //    //getSignedRequest(blob, stringname, keywebmname, false);
 
-            //upload logging file
-            var logname = "application/json";
-            //var keyjsonname = key + "logging"
-            var keyjsonname = key + ".json"
-            //getSignedRequest(to_send, logname, keyjsonname, true);
+        //    //upload logging file
+        //    var logname = "application/json";
+        //    //var keyjsonname = key + "logging"
+        //    var keyjsonname = key + ".json"
+        //    //getSignedRequest(to_send, logname, keyjsonname, true);
 
-            finished_uploading = true;
-            //update_score(json.key);
-            found = true;
+        //    finished_uploading = true;
+        //    //update_score(json.key);
+        //    found = true;
 
-            $("#mturk-key").css("background-color", "green");
-            console.log($("#mturk-key").css("background-color"));
-        });
+        //    $("#mturk-key").css("background-color", "green");
+        //    console.log($("#mturk-key").css("background-color"));
+        //});
 
     };
 
@@ -5153,8 +5153,10 @@ jt.AtariConsole = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score});
-        self.stop_recording_main(to_send)
-        window.location.replace("after_trial");
+        self.stop_recording_main(to_send);
+        if (clicked == true) {
+            window.location.replace("after_trial");
+        }
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
     }
