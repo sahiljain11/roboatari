@@ -81,6 +81,8 @@ var setup_reset_btn = function(but) {
     //  load_rom(rom); 
     //}
     $("#reset").css("background-color", "green");
+    $("#reset").html("Game has started");
+
     clicked = true;
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);

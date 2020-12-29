@@ -5203,6 +5203,7 @@ jt.AtariConsole = function() {
                                   'game_id':self.game_id, 'final_score': self.game.score});
         if (clicked == true) {
             $("#reset").css("background-color", "#FF9900");
+            $("#reset").html("Start new game (or press F12)");
             self.stop_recording_main(to_send)
         }
         //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
