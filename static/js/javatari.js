@@ -15911,6 +15911,11 @@ MsPacMan = function() {
 
         this.lives = (lives_byte & 0x7) + 1;
 
+        if (this.terminal == true) {
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
+
         if(total_time >= max_time) {
             this.terminal = true;
         }
