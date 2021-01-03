@@ -15797,6 +15797,8 @@ Invaders = function() {
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
+        console.log("updated score");
+        click_start = Date.now();
     };
 
     this.reset();
@@ -15815,9 +15817,20 @@ Invaders = function() {
 
         tmp = ram.read('0x98') & 0x80;
         this.terminal = tmp || this.lives == 0;
+        if (this.terminal == 128) {
+            this.terminal = false;
+        }
 
-        if (tmp == 128 || total_time >= max_time) {
+        //if (tmp == 128 || total_time >= max_time || this.terminal == true) {
+        if ((tmp == 128 && Date.now() - click_start > 5000) || total_time >= max_time) {
+            //console.log("GAME ENDED EARLY FLAG");
             this.terminal = true;
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
+        else if (tmp == 128) {
+            this.lives = 3;
+            //console.log("else if");
         }
 
         const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
@@ -15828,7 +15841,7 @@ Invaders = function() {
         this.prev       = ret[3];
         this.lives      = ret[4];
 
-        if(total_time >= max_time) {
+        if (total_time >= max_time) {
             this.terminal = true;
             this.lives = 0;
             this.prev_lives = 1;

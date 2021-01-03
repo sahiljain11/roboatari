@@ -37,6 +37,8 @@
         var time_array = []; // holds json time information
         var time_helper;
 
+        var click_start  = Date.now(); //used for buffer on not automatically ending stuff
+
         var total_time = 0;
         var upload_blobs = false;  // to see if we can move on to the next html
         var file_count = 0;        // for upload file names
@@ -99,6 +101,7 @@
                     prev = calc;
                 }
                 else if (calc == 0) {
+                    console.log("theo");
                     // theoretically should never be called
                     terminal = true;
                     return [terminal, prev_lives, startTime, prev, lives];
@@ -118,12 +121,13 @@
                 //    update_score(this.prev.toFixed(0) + " min. remaining : 1 life left");
                 //}
             }
+            //console.log("started: " + started + " terminal: " + terminal + " prev_lives: " + prev_lives);
             return [terminal, prev_lives, startTime, prev, lives];
         }
 
         var terminating_timestep = function(terminal, prev_lives, lives) {
             //console.log("terminating_timestep: " + prev_lives + " " + lives + " ");
-            if (terminal == true && started == true && prev_lives != -1 && lives == 0) {
+            if (terminal == true && started == true && prev_lives != -1 && lives == 0 && Date.now() - click_start > 5000) {
                 file_count += 1;
                 started = false;
                 prev_lives = -1;

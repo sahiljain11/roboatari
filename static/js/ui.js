@@ -87,6 +87,7 @@ var setup_reset_btn = function(but) {
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);
     Javatari.room.console.resetEnv();
+    //click_start = Date.now();
     //console.log("mousedown event reset");
     //reset_stuff();
 	});
