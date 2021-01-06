@@ -15797,7 +15797,7 @@ Invaders = function() {
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
-        console.log("updated score");
+        //console.log("updated score");
         click_start = Date.now();
     };
 
@@ -15952,6 +15952,75 @@ MsPacMan = function() {
     };
 };
 
+Seaquest = function() {
+    this.id = 5;
+    this.reset = function() {
+        this.reward   = 0;
+        this.score    = 0;
+        this.lives    = 4;
+        this.terminal = false;
+        this.frame    = 0;
+    };
+    this.reset();
+	this.ADDITIONAL_RESET = null;
+
+	this.step = function(ram) {
+        var score = tripleIndexDecimalScore('0xBA', '0xB9', '0xB8', ram);
+        var reward = score - this.score;
+        this.reward = reward;
+        this.score = score;
+
+        // update terminal status
+        this.terminal = ram.read('0xA3') != 0;
+        this.lives = ram.read('0xBB') + 1;
+
+        this.frame++;
+	};
+};
+
+Enduro = function() {
+    this.id = 6;
+    this.reset = function() {
+        this.reward   = 0;
+        this.score    = 0;
+        this.terminal = false;
+        this.frame    = 0;
+    };
+    this.reset();
+	this.ADDITIONAL_RESET = null;
+
+	this.step = function(ram) {
+
+        var level = ram.read('0xAD');
+        if (level != 0) {
+            var cars_passed = doubleIndexDecimalScore('0xAB', '0xAC', ram);
+            if (level == 1) {
+                cars_passed = 200 - cars_passed;
+            }
+            else if (level >= 2) {
+                cars_passed = 300 - cars_passed;
+            }
+            
+            if (level >= 2) {
+                score = 200;
+                score += (level - 2) * 300;
+            }
+            score += cars_passed;
+        }
+
+        var reward = score - this.score;
+        this.reward = reward;
+        this.score = score;
+
+        // update terminal status
+        this.terminal = ram.read('0xAF') != 0;
+
+        this.frame++;
+	};
+}
+
+
+
 var envForGame = function(title) {
   switch(title){
     //you get these names from Javatari.cartridge.rom.info.l
@@ -15970,5 +16039,9 @@ var envForGame = function(title) {
     case 'Montezuma\'s Revenge':
     case 'revenge':
       return new Montezuma();
+    case 'enduro':
+      return new Enduro();
+    case 'seaquest':
+      return new Seaquest();
   }
 };

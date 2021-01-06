@@ -31,8 +31,10 @@ def instruct():
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
-  else:
-    raise Exception("ROM not found")
+
+  return render_template('instruct.html')
+  #else:
+  #  raise Exception("ROM not found")
 
 # both do the same thing. functionally the same, but I needed another for a href call in JS
 @app.route('/start')
@@ -44,8 +46,9 @@ def start():
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
-  else:
-    raise Exception("ROM not found")
+  return render_template('instruct.html')
+  #else:
+  #  raise Exception("ROM not found")
 
 @app.route('/trial')
 def trial():

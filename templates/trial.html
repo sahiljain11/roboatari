@@ -48,7 +48,7 @@
       .then(
         async function(s) {
           mic_enabled = true;
-          if (rom == "revenge") {
+          if (rom == "revenge" || rom == "seaquest") {
             // simulate a click
             controlsSocket.controlStateChanged(control, true);
             await Javatari.room.console.resetEnv();
