@@ -4455,7 +4455,7 @@ jt.AtariConsole = function() {
       controlsSocket.controlStateChanged(id, true);
     };
 
-    this.clockPulse = function() {
+    this.clockPulse = async function() {
         if (videoStandardAutoDetectionInProgress)
             videoStandardAutoDetectionTry();
         frameActions = $.extend({}, Javatari.room.controls.getControlStateMap());        
@@ -15475,23 +15475,102 @@ MsPacMan = function() {
   };
 };
 
+Seaquest = function() {
+    // like montezuma
+    this.id = 5;
+    this.reset = function() {
+        this.reward   = 0;
+        this.score    = 0;
+        this.lives    = 4;
+        this.terminal = false;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        update_score("Click \"Start new game\" to begin!");
+    };
+    this.reset();
+	this.ADDITIONAL_RESET = null;
+
+	this.step = function(ram) {
+        var score = tripleIndexDecimalScore('0xBA', '0xB9', '0xB8', ram);
+        var reward = score - this.score;
+        this.reward = reward;
+        this.score = score;
+
+        // update terminal status
+        this.terminal = ram.read('0xA3') != 0;
+        this.lives = ram.read('0xBB') + 1;
+
+        this.frame++;
+	};
+};
+
+Enduro = function() {
+    this.id = 6;
+    this.reset = function() {
+        this.reward   = 0;
+        this.score    = 0;
+        this.terminal = false;
+        this.frame    = 0;
+        this.startTime = Date.now();
+        update_score("Click \"Start new game\" to begin!");
+    };
+    this.reset();
+    this.ADDITIONAL_RESET = null;
+
+	this.step = function(ram) {
+
+        var level = ram.read('0xAD');
+        if (level != 0) {
+            var cars_passed = doubleIndexDecimalScore('0xAB', '0xAC', ram);
+            if (level == 1) {
+                cars_passed = 200 - cars_passed;
+            }
+            else if (level >= 2) {
+                cars_passed = 300 - cars_passed;
+            }
+            
+            if (level >= 2) {
+                score = 200;
+                score += (level - 2) * 300;
+            }
+            score += cars_passed;
+        }
+
+        var reward = score - this.score;
+        this.reward = reward;
+        this.score = score;
+
+        // update terminal status
+        this.terminal = ram.read('0xAF') == 0xFF;
+
+        this.frame++;
+	};
+}
+
 var envForGame = function(title) {
-  switch(title){
-    //you get these names from Javatari.cartridge.rom.info.l
-    case 'Q-bert':
-    case 'qbert':
-      return new Qbert();
-    case 'Video Pinball':
-    case 'pinball':
-      return new Pinball();
-    case 'Ms. Pac-Man':
-    case 'mspacman':
-      return new MsPacMan();
-    case 'Space Invaders':
-    case 'spaceinvaders':
-      return new Invaders();
-    case 'Montezuma\'s Revenge':
-    case 'revenge':
-      return new Montezuma();
-  }
+    //console.log("Title: " + title)
+    switch(title){
+        //you get these names from Javatari.cartridge.rom.info.l
+        case 'Q-bert':
+        case 'qbert':
+            return new Qbert();
+        case 'Video Pinball':
+        case 'pinball':
+            return new Pinball();
+        case 'Ms. Pac-Man':
+        case 'mspacman':
+            return new MsPacMan();
+        case 'Space Invaders':
+        case 'spaceinvaders':
+            return new Invaders();
+        case 'Montezuma\'s Revenge':
+        case 'revenge':
+            return new Montezuma();
+        case 'ENDURO':
+        case 'enduro':
+            return new Enduro();
+        case 'seaquest':
+        case 'Seaquest':
+            return new Seaquest();
+    }
 };

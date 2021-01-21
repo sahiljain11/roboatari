@@ -141,7 +141,15 @@ def save_frame():
 ### replay stuff
 @app.route('/replay/<traj_id>')
 def replay(traj_id):
-  return render_template('index.html', replay=True, traj_id = traj_id)
+  return render_template('replay.html', replay=True, traj_id=traj_id, old_time=1,
+                          seconds=1)
+
+### adjusted replay stuff
+@app.route('/replay/<traj_id>/<seconds>/<old_time>')
+def replay_again(traj_id, seconds, old_time):
+  return render_template('replay.html', replay=True, traj_id=traj_id,
+                          seconds=seconds, old_time=old_time)
+
 
 @app.route('/api/trajectory/<trajectory_id>')
 def get_trajectory(trajectory_id):
