@@ -141,6 +141,7 @@ def replay_again():
 def get_trajectory(trajectory_id):
   rom = os.environ['ROM']
   path = os.path.abspath(os.getcwd()) + "/" + trajectory_id + ".json"
+  print(path)
 
   with open(path) as f:
     data = json.load(f)

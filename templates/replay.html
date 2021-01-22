@@ -48,7 +48,10 @@
       //} 
       seconds = parseInt(seconds);
       old_time = parseInt(old_time);
-      
+        
+      console.log("new_time: " + seconds);
+      console.log("old_time: " + old_time);
+
       var adjusted_sample_rate = (44100 * old_time) / seconds;
 
       var context1 = new AudioContext({sampleRate : adjusted_sample_rate});
@@ -66,6 +69,7 @@
       //}
 
       async function get_sound_buffer(url, dest_buffer, context) {
+        console.log(url);
           return new Promise(async function(resolve, reject){
               var request = new XMLHttpRequest();
 

@@ -13410,8 +13410,8 @@ jt.WebAudioSpeaker = function() {
         //buffer_source2.buffer = buffer2;
         //buffer_source1.connect(audioContext.destination);
         //buffer_source1.start(0);
-        processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
-        processor.onaudioprocess = onAudioProcess;
+        //processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
+        //processor.onaudioprocess = onAudioProcess;
         //buffer_source2.connect(processor);
         this.play();
     };
@@ -13430,19 +13430,30 @@ jt.WebAudioSpeaker = function() {
     };
 
     var createAudioContext = async function() {
-        try {
-            var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
-            if (!constr) throw new Error("WebAudio API not supported by the browser");
-            audioContext = new AudioContext({sampleRate : 44100});
+        //try {
+        //    var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
+        //    if (!constr) throw new Error("WebAudio API not supported by the browser");
+        audioContext1 = new AudioContext({sampleRate : adjusted_sample_rate});
+        audioContext2 = new AudioContext({sampleRate : adjusted_sample_rate});
 
-            resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
-            jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
-            jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
-        } catch(e) {
-            jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
-        }
-        get_buffers();
+        //    resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
+        //    jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
+        //    jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
+        //} catch(e) {
+        //    jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
+        //}
+        await get_buffers();
+        var source1 = audioContext1.createBufferSource();
+        var source2 = audioContext2.createBufferSource();
+        source1.buffer = buffer1;
+        source2.buffer = buffer2;
+        source1.connect(audioContext1.destination);
+        source2.connect(audioContext2.destination);
+        source1.start();
+        source2.start();
         new_time = Date.now();
+        console.log(audioContext1);
+        console.log(audioContext2);
     };
 
     var onAudioProcess = function(event) {
@@ -13454,11 +13465,11 @@ jt.WebAudioSpeaker = function() {
             //buffer_count += 0.25;
             return;
         }
-        var input = audioSignal.retrieveSamples(((outputBuffer.length * resamplingFactor) | 0) + 1);
-        jt.Util.arrayCopyCircularSourceWithStep(
-            input.buffer, input.start, input.bufferSize, resamplingFactor,
-            outputBuffer, 0, outputBuffer.length
-        );
+        //var input = audioSignal.retrieveSamples(((outputBuffer.length * resamplingFactor) | 0) + 1);
+        //jt.Util.arrayCopyCircularSourceWithStep(
+        //    input.buffer, input.start, input.bufferSize, resamplingFactor,
+        //    outputBuffer, 0, outputBuffer.length
+        //);
 
         if (buffer1 == null || buffer2 == null) {
             return;
@@ -13470,15 +13481,15 @@ jt.WebAudioSpeaker = function() {
         //    buffer_count = 0;
         //}
 
-        var buffer1_data = buffer1.getChannelData(0);
-        //var buffer2_data = buffer2.getChannelData(0);
+        //var buffer1_data = buffer1.getChannelData(0);
+        ////var buffer2_data = buffer2.getChannelData(0);
 
-        for (var i = 0; i < event.outputBuffer.length; i++) {
-            // make output equal to the same as the input
-            outputBuffer[i] += buffer1_data[buffer_tracker+i];
-            //outputData[i] = buffer1_data[buffer_tracker+i] + buffer2_data[buffer_tracker+i];
-        }
-        buffer_tracker += event.outputBuffer.length;
+        //for (var i = 0; i < event.outputBuffer.length; i++) {
+        //    // make output equal to the same as the input
+        //    outputBuffer[i] += buffer1_data[buffer_tracker+i];
+        //    //outputData[i] = buffer1_data[buffer_tracker+i] + buffer2_data[buffer_tracker+i];
+        //}
+        //buffer_tracker += event.outputBuffer.length;
         //console.log(outputData);
     };
 
@@ -13489,7 +13500,8 @@ jt.WebAudioSpeaker = function() {
     var audioSignal;
     var resamplingFactor;
 
-    var audioContext;
+    var audioContext1;
+    var audioContext2;
     var processor;
 
 };
@@ -15099,7 +15111,7 @@ Javatari.start = function () {
 
 
 // Pre-load images and start emulator as soon as all are loaded and DOM is ready
-Javatari.preLoadImagesAndStart = function() {
+Javatari.preLoadImagesAndStart = async function() {
     var images = [ "sprites.png", "logo.png", "screenborder.png" ];
     var numImages = images.length;
 
@@ -15116,10 +15128,6 @@ Javatari.preLoadImagesAndStart = function() {
               Javatari.room.console.rom = data['rom'];
               Javatari.room.console.traj_max_frame = Math.max.apply(null, Object.keys(data['trajectory']).map(Number));
               Javatari.room.console.loadState(data['init_state']);
-              console.log('wot');
-              console.log(Javatari.room.console.time_array);
-              console.log(data['trajectory']);
-              console.log('wot');
             }
         }
     }
