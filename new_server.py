@@ -1,19 +1,10 @@
 import os
 import random
-from keys import *
 from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, abort, session
 import json
-import numpy as np
 import boto3
 import string
 from flask_session import Session
-# from flask_mobility import Mobility
-# from flask_mobility.decorators import mobile_template
-
-# from PIL import Image
-# from io import BytesIO
-# import base64
-# import cv2
 
 app = Flask(__name__)
 app.secret_key = 'afisdosad90akfsdial1239jk'
@@ -21,6 +12,8 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 sess = Session()
 sess.init_app(app)
+port = int(os.environ.get('PORT', 5000))
+print("http://127.0.0.1:" + str(port) + "/replay/spaceinvaders_5VXL2UBKOT_1")
 
 @app.route('/')
 def instruct():
@@ -130,7 +123,19 @@ def api_save():
 ### replay stuff
 @app.route('/replay/<traj_id>')
 def replay(traj_id):
-  return render_template('replay.html', replay=True, traj_id = traj_id)
+  if session.get('new_time') == None or session.get('old_time') == None:
+    session["new_time"] = 1
+    session["old_time"] = 1
+  return render_template('replay.html', replay=True, traj_id=traj_id,
+                         seconds=session["new_time"], old_time=session["old_time"])
+
+### adjusted replay stuff
+@app.route('/update_replay', methods=["POST"])
+def replay_again():
+  req_data = request.get_json(force=True)
+  session["new_time"] = req_data["seconds"]
+  session["old_time"] = req_data["old_time"]
+  return jsonify({"done" : "yay"})
 
 @app.route('/api/trajectory/<trajectory_id>')
 def get_trajectory(trajectory_id):

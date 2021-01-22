@@ -27,24 +27,25 @@
     <script>
       var id = traj_id.slice(0, 10);
       var id2 = traj_id.slice(10);
-      var sound1 = new sound("../static/sound/" + traj_id + ".wav", false);
-      var sound2 = new sound("../static/sound/" + id + "_atari" + id2 + ".wav", false);
+      var splitted = traj_id.split("_");
+      //var sound1 = new sound("../static/sound/" + traj_id + ".wav", false);
+      //var sound2 = new sound("../static/sound/" + traj_id + "_atari" + id2 + ".wav", false);
 
-      function sound(src, loop) {
-          this.sound = document.createElement("audio");
-          this.sound.src = src;
-          this.sound.setAttribute("preload", "auto");
-          this.sound.setAttribute("controls", "none");
-          this.sound.style.display = "none";
-          this.sound.loop = loop;
-          document.body.appendChild(this.sound);
-          this.play = function(){
-	            this.sound.play();
-          }
-          this.stop = function(){
-	            this.sound.pause();
-          }
-      } 
+      //function sound(src, loop) {
+      //    this.sound = document.createElement("audio");
+      //    this.sound.src = src;
+      //    this.sound.setAttribute("preload", "auto");
+      //    this.sound.setAttribute("controls", "none");
+      //    this.sound.style.display = "none";
+      //    this.sound.loop = loop;
+      //    document.body.appendChild(this.sound);
+      //    this.play = function(){
+	     //       this.sound.play();
+      //    }
+      //    this.stop = function(){
+	     //       this.sound.pause();
+      //    }
+      //} 
       seconds = parseInt(seconds);
       old_time = parseInt(old_time);
       
@@ -54,6 +55,8 @@
       var context2 = new AudioContext({sampleRate : adjusted_sample_rate});
       var buffer1 = null;
       var buffer2 = null;
+
+      var new_time;
       //var merged_buffer  = null;
 
       //async function merge_buffers_together() {
@@ -95,7 +98,8 @@
 
       async function get_buffers() {
         await get_sound_buffer("../static/sound/" + traj_id + ".wav", 1, context1);
-        await get_sound_buffer("../static/sound/" + id + "_atari" + id2 + ".wav", 2, context2);
+        await get_sound_buffer("../static/sound/" + splitted[0] + "_" + splitted[1] +
+                               "_atari_" + splitted[2] + ".wav", 2, context2);
         console.log(buffer1);
         console.log(buffer2);
       }

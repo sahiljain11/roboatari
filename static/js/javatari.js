@@ -5206,7 +5206,7 @@ jt.AtariConsole = function() {
         started = false;
         to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score,
-                                  'time_stamp:': time_array});
+                                  'time_stamp': time_array});
         if (clicked == true) {
             $("#reset").css("background-color", "#FF9900");
             $("#reset").html("Start new game (or press F12)");

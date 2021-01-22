@@ -4476,7 +4476,24 @@ jt.AtariConsole = function() {
             self.game.step(self.ram);
             controlsSocket.clockPulse();
             if(self.traj_max_frame == self.game.frame - 1) {
-              alert('END OF REPLAY');              
+                if (seconds == 1 && old_time == 1) {
+                    new_time = Date.now() - new_time;
+                    old_time = self.time_array[self.time_array.length - 1];
+                    await fetch('/update_replay', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            "seconds" : new_time,
+                            "old_time" : old_time
+                        })
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(function() {
+                        window.location.replace('/replay/' + traj_id)
+                    });
+                }
+                else {
+                    alert('END OF REPLAY');              
+                }
             }
           } else {
             if (self.game.frame == 1) {
@@ -13425,6 +13442,7 @@ jt.WebAudioSpeaker = function() {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
         get_buffers();
+        new_time = Date.now();
     };
 
     var onAudioProcess = function(event) {
@@ -15093,10 +15111,15 @@ Javatari.preLoadImagesAndStart = function() {
             if(replay) {
               var data = JSON.parse(getTrajectory(traj_id).responseText);
               saveReplayTrajectory(data['trajectory'], data['rom'], data['seqid']);
+              Javatari.room.console.time_array = data['time_stamp:'];
               Javatari.room.console.traj = data['trajectory'];
               Javatari.room.console.rom = data['rom'];
               Javatari.room.console.traj_max_frame = Math.max.apply(null, Object.keys(data['trajectory']).map(Number));
               Javatari.room.console.loadState(data['init_state']);
+              console.log('wot');
+              console.log(Javatari.room.console.time_array);
+              console.log(data['trajectory']);
+              console.log('wot');
             }
         }
     }

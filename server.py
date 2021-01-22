@@ -137,7 +137,6 @@ def save_frame():
 
   return 'screenshot saved', 200
 
-
 ### replay stuff
 @app.route('/replay/<traj_id>')
 def replay(traj_id):
