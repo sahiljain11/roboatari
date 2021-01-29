@@ -15087,6 +15087,7 @@ Javatari.start = function () {
             throw new Error('Javatari cannot be started. ' +
             'HTML document is missing screen element with id "' + Javatari.SCREEN_ELEMENT_ID + '"');
     }
+    console.log(Javatari.screenElement);
     if (!Javatari.consolePanelElement)
         Javatari.consolePanelElement = document.getElementById(Javatari.CONSOLE_PANEL_ELEMENT_ID);
     // Build and start emulator
@@ -15199,7 +15200,10 @@ var sequenceToServ = function(trajectory, state, game_id, final_score) {
 };
 
 var saveFrame = function(data, rom) {
-   //return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_frame",  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'], 'height':data['height'], 'rom':rom}), async:false});
+   image_upload_count += 1;
+   return $.ajax({type: "POST", contentType:'application/json', url: "/api/save_frame",
+                  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'],
+                  'height':data['height'], 'rom':rom, 'key':traj_id, 'count':image_upload_count}), async:false});
 };
 
 var saveReplayTrajectory = function(data, rom, seqid) {

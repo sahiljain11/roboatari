@@ -28,6 +28,7 @@
       var id = traj_id.slice(0, 10);
       var id2 = traj_id.slice(10);
       var splitted = traj_id.split("_");
+      var image_upload_count = 0;
       //var sound1 = new sound("../static/sound/" + traj_id + ".wav", false);
       //var sound2 = new sound("../static/sound/" + traj_id + "_atari" + id2 + ".wav", false);
 
@@ -69,7 +70,6 @@
       //}
 
       async function get_sound_buffer(url, dest_buffer, context) {
-        console.log(url);
           return new Promise(async function(resolve, reject){
               var request = new XMLHttpRequest();
 

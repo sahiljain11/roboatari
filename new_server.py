@@ -5,6 +5,9 @@ import json
 import boto3
 import string
 from flask_session import Session
+from io import BytesIO
+import base64
+from PIL import Image
 
 app = Flask(__name__)
 app.secret_key = 'afisdosad90akfsdial1239jk'
@@ -157,6 +160,19 @@ def save_trajectory():
 
 @app.route('/api/save_frame', methods=['POST'])
 def save_frame():
+  resp = request.get_json()
+  
+  data = resp['screenshot'].split(',')[1]
+  w = resp['width']
+  h = resp['height']
+  key = resp['key']
+  count = resp['count']
+  im = Image.open(BytesIO(base64.b64decode(data)))
+  im = im.crop((0,0,w,h))
+
+  path = os.path.join(os.getcwd(), f'images/{key}_{count}.png')
+  print(path)
+  im.save(path)
   return 'screenshot saved', 200
 
 if __name__ == "__main__":
