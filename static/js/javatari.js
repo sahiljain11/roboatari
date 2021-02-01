@@ -15954,12 +15954,18 @@ MsPacMan = function() {
 
 Seaquest = function() {
     this.id = 5;
+    this.prev = MIN_TILL_COMPLETION;
     this.reset = function() {
         this.reward   = 0;
         this.score    = 0;
         this.lives    = 4;
         this.terminal = false;
         this.frame    = 0;
+
+        this.prev_lives = 4;
+        this.startTime = Date.now();
+        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        update_score(calc.toFixed(0) + " min. remaining : 4 live(s) left");
     };
     this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -15974,17 +15980,46 @@ Seaquest = function() {
         this.terminal = ram.read('0xA3') != 0;
         this.lives = ram.read('0xBB') + 1;
 
+        if (total_time >= max_time) {
+            this.terminal = true;
+        }
+
+        if (this.terminal == true) {
+            this.lives = 0;
+        }
+
+        const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
+        this.terminal   = ret[0];
+        this.prev_lives = ret[1];
+        this.startTime  = ret[2];
+        this.prev       = ret[3];
+        this.lives      = ret[4];
+
+        if(total_time >= max_time) {
+            this.terminal = true;
+            this.lives = 0;
+            this.prev_lives = 1;
+        }
+
+        console.log("terminating_timestep: " + this.prev_lives + " " + this.lives);
+        this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
+
         this.frame++;
 	};
 };
 
 Enduro = function() {
     this.id = 6;
+    this.prev = MIN_TILL_COMPLETION;
     this.reset = function() {
         this.reward   = 0;
         this.score    = 0;
         this.terminal = false;
         this.frame    = 0;
+
+        this.startTime = Date.now();
+        var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        update_score(calc.toFixed(0) + " min. remaining");
     };
     this.reset();
 	this.ADDITIONAL_RESET = null;
@@ -16013,35 +16048,53 @@ Enduro = function() {
         this.score = score;
 
         // update terminal status
-        this.terminal = ram.read('0xAF') != 0;
+        this.terminal = ram.read('0xAF') == 0xFF;
+        if (total_time >= max_time) {
+            this.terminal = true;
+        }
+
+        const ret = update_rom_state(this.terminal, 3, this.startTime, this.prev, 3);
+        this.terminal   = ret[0];
+        this.startTime  = ret[2];
+        this.prev       = ret[3];
+
+        if(total_time >= max_time) {
+            this.terminal = true;
+            this.lives = 0;
+        }
+
+        terminating_timestep(this.terminal, 1, 0);
 
         this.frame++;
 	};
 }
 
-
-
 var envForGame = function(title) {
-  switch(title){
-    //you get these names from Javatari.cartridge.rom.info.l
-    case 'Q-bert':
-    case 'qbert':
-      return new Qbert();
-    case 'Video Pinball':
-    case 'pinball':
-      return new Pinball();
-    case 'Ms. Pac-Man':
-    case 'mspacman':
-      return new MsPacMan();
-    case 'Space Invaders':
-    case 'spaceinvaders':
-      return new Invaders();
-    case 'Montezuma\'s Revenge':
-    case 'revenge':
-      return new Montezuma();
-    case 'enduro':
-      return new Enduro();
-    case 'seaquest':
-      return new Seaquest();
-  }
+    //console.log("Title: " + title)
+    switch(title){
+        //you get these names from Javatari.cartridge.rom.info.l
+        case 'Q-bert':
+        case 'qbert':
+            return new Qbert();
+        case 'Video Pinball':
+        case 'pinball':
+            return new Pinball();
+        case 'Ms. Pac-Man':
+        case 'mspacman':
+            return new MsPacMan();
+        case 'Space Invaders':
+        case 'spaceinvaders':
+            return new Invaders();
+        case 'Montezuma\'s Revenge':
+        case 'revenge':
+            return new Montezuma();
+        case 'ENDURO':
+        case 'enduro':
+            return new Enduro();
+        case 'seaquest':
+        case 'Seaquest':
+            return new Seaquest();
+    }
 };
+
+
