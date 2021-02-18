@@ -15,20 +15,23 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 sess = Session()
 sess.init_app(app)
-port = int(os.environ.get('PORT', 5000))
 print("http://127.0.0.1:" + str(port) + "/replay/spaceinvaders_5VXL2UBKOT_1")
 
 @app.route('/')
 def instruct():
   rom = os.environ['ROM']
   if rom == 'spaceinvaders':
-    return render_template('instruct.html')
+    return render_template('instruct_space.html')
   if rom == 'mspacman':
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
+  if rom == 'enduro':
+    return render_template('instruct_end.html')
+  if rom == 'seaquest':
+    return render_template('instruct_sea.html')
 
-  return render_template('instruct.html')
+  return render_template('instruct_space.html')
   #else:
   #  raise Exception("ROM not found")
 
@@ -37,12 +40,17 @@ def instruct():
 def start():
   rom = os.environ['ROM']
   if rom == 'spaceinvaders':
-    return render_template('instruct.html')
+    return render_template('instruct_space.html')
   if rom == 'mspacman':
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
-  return render_template('instruct.html')
+  if rom == 'enduro':
+    return render_template('instruct_end.html')
+  if rom == 'seaquest':
+    return render_template('instruct_sea.html')
+
+  return render_template('instruct_space.html')
   #else:
   #  raise Exception("ROM not found")
 
@@ -53,6 +61,9 @@ def trial():
 
 @app.route('/after_trial')
 def after_trial():
+  if rom == "enduro":
+    return render_template('instruct2_enduro.html')
+
   return render_template('instruct2.html')
 
 @app.route('/last')
