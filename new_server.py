@@ -67,6 +67,7 @@ def after_trial():
 
 @app.route('/last')
 def last():
+  rom = os.environ['ROM']
   key = session.get("key")
   if key == None:
     return render_template('last.html', key="<no_code_given>")
