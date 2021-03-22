@@ -15,8 +15,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 sess = Session()
 sess.init_app(app)
-port = int(os.environ.get('PORT', 5000))
-print("http://127.0.0.1:" + str(port) + "/replay/spaceinvaders_5VXL2UBKOT_1")
 
 @app.route('/')
 def instruct():
