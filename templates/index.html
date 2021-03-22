@@ -81,12 +81,14 @@
           function(err) {
             stream = null;
             //replace this with whatever blank url later
+            //console.log(err);
             window.location.replace("/mic");
           }
         );
 
 
         var update_rom_state = function(terminal, prev_lives, startTime, prev, lives) {
+          console.log(started + " " + terminal + " " + prev_lives);
             if (started == true && terminal == false && prev_lives != -1) {
                 //console.log("inside if statement");
                 //update the time
@@ -101,7 +103,6 @@
                     prev = calc;
                 }
                 else if (calc == 0) {
-                    console.log("theo");
                     // theoretically should never be called
                     terminal = true;
                     return [terminal, prev_lives, startTime, prev, lives];
@@ -114,7 +115,13 @@
 
                 //if (changed == true && this.lives > 0) {
                 if (changed == true) {
-                    update_score(prev.toFixed(0) + " min. remaining : " + lives + " live(s) left");
+                    if (rom == 'enduro') {
+                        update_score(prev.toFixed(0) + " min. remaining");
+                    }
+                    else {
+                      console.log("change");
+                        update_score(prev.toFixed(0) + " min. remaining : " + lives + " live(s) left");
+                    }
                 }
 
                 //else if (changed == true && this.lives == 1 && this.prev_lives != -1) {
@@ -126,8 +133,9 @@
         }
 
         var terminating_timestep = function(terminal, prev_lives, lives) {
-            //console.log("terminating_timestep: " + prev_lives + " " + lives + " ");
+            //console.log("terminating_timestep: " + prev_lives + " " + lives);
             if (terminal == true && started == true && prev_lives != -1 && lives == 0 && Date.now() - click_start > 5000) {
+                console.log("such confusion many wow");
                 file_count += 1;
                 started = false;
                 prev_lives = -1;
@@ -164,7 +172,7 @@
         </div>
         <div id="javatari-screen"></div>
         <div>
-          <div id="reset">Start new game (or press F12)<br/></div>
+          <div id="reset">Start new game<br/></div>
           <!div id="sound-btn"></div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import string
 from flask_session import Session
 from io import BytesIO
 import base64
-from PIL import Image
+#from PIL import Image
 
 app = Flask(__name__)
 app.secret_key = 'afisdosad90akfsdial1239jk'
@@ -20,13 +20,17 @@ sess.init_app(app)
 def instruct():
   rom = os.environ['ROM']
   if rom == 'spaceinvaders':
-    return render_template('instruct.html')
+    return render_template('instruct_space.html')
   if rom == 'mspacman':
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
+  if rom == 'enduro':
+    return render_template('instruct_end.html')
+  if rom == 'seaquest':
+    return render_template('instruct_sea.html')
 
-  return render_template('instruct.html')
+  return render_template('instruct_space.html')
   #else:
   #  raise Exception("ROM not found")
 
@@ -35,12 +39,17 @@ def instruct():
 def start():
   rom = os.environ['ROM']
   if rom == 'spaceinvaders':
-    return render_template('instruct.html')
+    return render_template('instruct_space.html')
   if rom == 'mspacman':
     return render_template('instruct_pac.html')
   if rom == 'revenge':
     return render_template('instruct_rev.html')
-  return render_template('instruct.html')
+  if rom == 'enduro':
+    return render_template('instruct_end.html')
+  if rom == 'seaquest':
+    return render_template('instruct_sea.html')
+
+  return render_template('instruct_space.html')
   #else:
   #  raise Exception("ROM not found")
 
@@ -51,6 +60,9 @@ def trial():
 
 @app.route('/after_trial')
 def after_trial():
+  if rom == "enduro":
+    return render_template('instruct2_enduro.html')
+
   return render_template('instruct2.html')
 
 @app.route('/last')
@@ -156,22 +168,22 @@ def get_trajectory(trajectory_id):
 def save_trajectory():
   return 'sequence saved', 200
 
-@app.route('/api/save_frame', methods=['POST'])
-def save_frame():
-  resp = request.get_json()
-  
-  data = resp['screenshot'].split(',')[1]
-  w = resp['width']
-  h = resp['height']
-  key = resp['key']
-  count = resp['count']
-  im = Image.open(BytesIO(base64.b64decode(data)))
-  im = im.crop((0,0,w,h))
-
-  path = os.path.join(os.getcwd(), f'images/{key}_{count}.png')
-  print(path)
-  im.save(path)
-  return 'screenshot saved', 200
+#@app.route('/api/save_frame', methods=['POST'])
+#def save_frame():
+#  resp = request.get_json()
+#  
+#  data = resp['screenshot'].split(',')[1]
+#  w = resp['width']
+#  h = resp['height']
+#  key = resp['key']
+#  count = resp['count']
+#  im = Image.open(BytesIO(base64.b64decode(data)))
+#  im = im.crop((0,0,w,h))
+#
+#  path = os.path.join(os.getcwd(), f'images/{key}_{count}.png')
+#  print(path)
+#  im.save(path)
+#  return 'screenshot saved', 200
 
 if __name__ == "__main__":
   app.run()
