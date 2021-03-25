@@ -60,6 +60,7 @@ def trial():
 
 @app.route('/after_trial')
 def after_trial():
+  rom = os.environ['ROM']
   if rom == "enduro":
     return render_template('instruct2_enduro.html')
 
