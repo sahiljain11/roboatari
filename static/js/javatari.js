@@ -16001,7 +16001,6 @@ Seaquest = function() {
             this.prev_lives = 1;
         }
 
-        console.log("terminating_timestep: " + this.prev_lives + " " + this.lives);
         this.prev_lives = terminating_timestep(this.terminal, this.prev_lives, this.lives);
 
         this.frame++;

@@ -78,7 +78,7 @@ var setup_reset_btn = function(but) {
 	controlsSocket = Javatari.room.console.getControlsSocket();
 	but.style.cursor = "pointer";
   var mouseDown;
-  but.addEventListener("mousedown", function (e) {
+  but.addEventListener("mousedown", async function (e) {
     //console.log(e);
     //save_the_event = e;
   if (e.preventDefault) e.preventDefault();
@@ -91,21 +91,21 @@ var setup_reset_btn = function(but) {
     clicked = true;
     mouseDown = true;
     controlsSocket.controlStateChanged(control, true);
-    Javatari.room.console.resetEnv();
+    await Javatari.room.console.resetEnv();
     //click_start = Date.now();
-    //console.log("mousedown event reset");
     //reset_stuff();
+		controlsSocket.controlStateChanged(control, false);
 	});
 	but.addEventListener("mouseup", function (e) {
 	if (e.preventDefault) e.preventDefault();
 		mouseDown = false;
-		controlsSocket.controlStateChanged(control, false);
+		//controlsSocket.controlStateChanged(control, false);
 	});
 	but.addEventListener("mouseleave", function (e) {
 		if (e.preventDefault) e.preventDefault();
 		if (!mouseDown) return;
 		mouseDown = false;
-		controlsSocket.controlStateChanged(control, false);
+		//controlsSocket.controlStateChanged(control, false);
 	});
 }
 

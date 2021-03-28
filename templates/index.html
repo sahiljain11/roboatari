@@ -70,10 +70,10 @@
               // simulate a click
               controlsSocket.controlStateChanged(control, true);
               await Javatari.room.console.resetEnv();
-              controlsSocket.controlStateChanged(control, false);
-              clicked = true;
               $("#reset").css("background-color", "green");
               $("#reset").html("Game has started");
+              controlsSocket.controlStateChanged(control, false);
+              clicked = true;
             }
           }
         )
@@ -88,7 +88,6 @@
 
 
         var update_rom_state = function(terminal, prev_lives, startTime, prev, lives) {
-          console.log(started + " " + terminal + " " + prev_lives);
             if (started == true && terminal == false && prev_lives != -1) {
                 //console.log("inside if statement");
                 //update the time
@@ -119,7 +118,6 @@
                         update_score(prev.toFixed(0) + " min. remaining");
                     }
                     else {
-                      console.log("change");
                         update_score(prev.toFixed(0) + " min. remaining : " + lives + " live(s) left");
                     }
                 }
@@ -135,7 +133,6 @@
         var terminating_timestep = function(terminal, prev_lives, lives) {
             //console.log("terminating_timestep: " + prev_lives + " " + lives);
             if (terminal == true && started == true && prev_lives != -1 && lives == 0 && Date.now() - click_start > 5000) {
-                console.log("such confusion many wow");
                 file_count += 1;
                 started = false;
                 prev_lives = -1;
