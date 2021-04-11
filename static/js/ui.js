@@ -99,6 +99,7 @@ var setup_reset_btn = function(but) {
         Javatari.room.console.resetEnv();
         //click_start = Date.now();
         //reset_stuff();
+        setTimeout(function() {controlsSocket.controlStateChanged(control, false)}, 1000);
     }
 
 	});

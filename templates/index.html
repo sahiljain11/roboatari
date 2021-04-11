@@ -68,19 +68,20 @@
           async function(s) {
             mic_enabled = true;
             if (rom == "revenge" || rom == "seaquest") {
-	            //var control = jt.ConsoleControls.RESET;
-	            //var controlsSocket = Javatari.room.console.getControlsSocket();
+	            var control = jt.ConsoleControls.RESET;
+	            var controlsSocket = Javatari.room.console.getControlsSocket();
               
-              //document.getElementById("reset").click();
-              //await start_recording_audio();
+              document.getElementById("reset").click();
+              await start_recording_audio();
 
-              //// simulate a click
-              //controlsSocket.controlStateChanged(control, true);
-              //Javatari.room.console.resetEnv();
+              /// simulate a click
+              controlsSocket.controlStateChanged(control, true);
+              Javatari.room.console.resetEnv();
+              setTimeout(function() {controlsSocket.controlStateChanged(control, false)}, 100);
               //controlsSocket.controlStateChanged(control, false);
-              //clicked = true;
-              //$("#reset").css("background-color", "green");
-              //$("#reset").html("Game has started");
+              clicked = true;
+              $("#reset").css("background-color", "green");
+              $("#reset").html("Game has started");
             }
           }
         )
