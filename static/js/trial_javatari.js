@@ -4516,81 +4516,27 @@ jt.AtariConsole = function() {
         this.framesGenerated++;
     };
 
-    this.resetEnv = async function() {
-        if (mic_enabled == false) {
-            window.location.replace("mic");
-        }
-        if (stream != null){
-            console.log("resetEnv");
-            console.log(stream);
-            self.start_recording_finished = false;
-            self.recorder;
-            //self.video = document.querySelector('video');
-            self.audio = document.querySelector('audio');
+    this.resetEnv = function() {
+        self.save_seq();
+        self.game.reset();
+        sequence_sent = false;
+        trajectory = {};
+        self.started = true;
 
-            await self.start_recording(self.recorder, self.audio);
-
-            //while (self.start_recording_finished == false) {
-
-            //}
-
-            self.save_seq();
-            sequence_sent = false;
-            trajectory = {};
-            self.started = true;
-            self.game.reset();
-            return;
-        }
-    };
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    };
-
-    this.start_recording = async function(recorder, audio) {
-
-        if (self.recorder != null) {
-	        self.recorder.destroy()
-        }
-
-        //specify the stream types wanted
-
-        //console.log("before await");
-        //await sleep(100000);
-        //console.log("after await");
-        // gets permission
-        //console.log("stream");
-        //console.log(stream);
-        //stream = navigator.mediaDevices.getUserMedia({video: false, audio:true});
-        stream = await get_stream();
-        self.audio.srcObject = stream;
-        self.audio.muted = true;
-
-        self.recorder = new RecordRTCPromisesHandler(stream, {
-	        type: 'audio'
-        });
-
-        self.recorder.startRecording();
-
-        self.recorder.stream = stream;
-
-        //jt.Util.log("Finished starting to record");
-        self.start_recording_finished = true;
         started = true;
-    };
-
-    async function get_stream() {
-        return navigator.mediaDevices.getUserMedia({video: false, audio: {echoCancellation: true}});
+        time_helper = Date.now();
     }
 
     this.stop_recording_main = async function(to_send) {
-        await self.recorder.stopRecording();
+        await recorder.stopRecording();
 
         self.audio.srcObject = null;
 
         let blob = await self.recorder.getBlob();
         self.audio.src = URL.createObjectURL(blob);
 
+        // NO NEED TO SEND THINGS TO S3 in trial phase!
+        
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
         //var key;
@@ -15778,7 +15724,7 @@ Seaquest = function() {
         this.terminal = false;
         this.frame    = 0;
         this.startTime = Date.now();
-        update_score("Click \"Start new game\" to begin!");
+        update_score("Enable your microphone to begin!");
     };
     this.reset();
 	this.ADDITIONAL_RESET = null;

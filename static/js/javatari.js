@@ -15685,7 +15685,7 @@ MsPacMan = function() {
 Seaquest = function() {
     this.id = 5;
     this.prev = MIN_TILL_COMPLETION;
-    update_score("Click \"Start new game\" to begin!");
+    update_score("Enable your microphone to begin!");
 
     this.reset = function() {
         this.reward   = 0;

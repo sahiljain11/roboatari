@@ -183,7 +183,6 @@ var start_rec = async function() {
 
     recorder.stream = stream;
 
-    //jt.Util.log("Finished starting to record");
     start_recording_finished = true;
 };
 
