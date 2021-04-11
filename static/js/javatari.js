@@ -1,4 +1,4 @@
-//// Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
+// Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
 
 // Main Emulator parameters.
 // You may change any of these after loading the project and before starting the Emulator
@@ -21,8 +21,7 @@ Javatari = {
     SCREEN_OPENING_SIZE:            2,                          // 1 .. 4
     SCREEN_CONTROL_BAR:             0,                          // 0 = Always, 1 = Hover, 2 = Original Javatari
     SCREEN_NATURAL_FPS:             60,                         // 60, 50 fps
-    AUDIO_BUFFER_SIZE:              4096,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
-    //AUDIO_BUFFER_SIZE:             1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
+    AUDIO_BUFFER_SIZE:              1024,                        // 256, 512, 1024, 2048, 4096, 8192. More buffer = more delay
     IMAGES_PATH:                    window.Javatari_IMAGES_PATH || "static/img/"
 
 };
@@ -2686,8 +2685,7 @@ jt.TiaAudioSignal = function() {
 
 };
 
-//jt.TiaAudioSignal.SAMPLE_RATE = 31440;
-jt.TiaAudioSignal.SAMPLE_RATE = 44100;
+jt.TiaAudioSignal.SAMPLE_RATE = 31440;
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
 
@@ -4430,8 +4428,6 @@ jt.ConsoleControls = {
 
 jt.AtariConsole = function() {
     var self = this;
-    self.recorder = null;
-    self.audio = null;
     function init() {
         mainComponentsCreate();
         socketsCreate();
@@ -4459,27 +4455,10 @@ jt.AtariConsole = function() {
     };
 
     this.clockPulse = function() {
-        //if (restart_bool == true) {
-        //    restart_bool = false;
-        //    console.log("soidfnioasdnfisdafniausdnfiuasdnfiusdniuasdnfliuasd");
-        //    var temp_func = this.resetEnv;
-        //    setTimeout(async function() {
-        //        console.log("setTimeout");
-        //        //console.log(new MouseEvent('click', {shiftKey: true}));
-        //        //document.getElementById("reset").dispatchEvent(new MouseEvent('click', {shiftKey: true}))
-        //        document.getElementById("reset").dispatchEvent(save_the_event);
-        //        //reset_stuff();
-        //        //controlsSocket.controlStateChanged(54, true);
-        //        //controlsSocket.clockPulse();
-        //        ////controlsSocket.controlStateChanged(jt.ConsoleControls.RESET, true);
-        //        //await temp_func();
-        //        ////restarted = true;
-        //      }, 10000);
-        //}
         if (videoStandardAutoDetectionInProgress)
             videoStandardAutoDetectionTry();
         frameActions = $.extend({}, Javatari.room.controls.getControlStateMap());        
-        if(self.game!=null && stream != null) {
+        if(self.game!=null) {
           if(replay) {
             if(self.game.frame >= 1) {
               data = Javatari.room.screen.getMonitor().getScreenURL()
@@ -4498,145 +4477,67 @@ jt.AtariConsole = function() {
             if(self.traj_max_frame == self.game.frame - 1) {
               alert('END OF REPLAY');              
             }
-          } else { // not in replay
+          } else {
             if (self.game.frame == 1) {
               self.init_state = self.saveState();
               if(rom == 'qbert' || rom == 'revenge') {
                 self.started = true;
               }
-              if (first_iter) {
-                //update_score(MIN_TILL_COMPLETION + " min. remaining");
-                first_iter = false;
-              }
             }
             if(!self.game.terminal) {
-                if (started == true) {
-                    time_array.push(Date.now() - time_helper);
-                }
 
-                self.game.step(self.ram);
-                var frame_data = {};
-                frame_data['action'] = atariControlsToALE(frameActions, ctrls);
-                frame_data['keys_pressed'] = frameActions;
-                frame_data['reward'] = self.game.reward;
-                frame_data['terminal'] = self.game.terminal;
-                frame_data['score'] = self.game.score;
-                trajectory[self.game.frame-1] = frame_data;
-              //if(self.game.frame % 60 == 0 && found == false) {
-                //var score = self.started ? self.game.score:0;
-                //if (finished_uploading == false && is_zero == true) {
-                //}
-                //else {
-                //    //fetch('/key', {
-                //    //    method: 'GET'
-                //    //}).then(function (response) {
-                //    //    return response.json();
-                //    //}).then(async function(json) {
-                //    //    //update_score(json.key);
-                //    //    found = true;
-                //    //    key = json.key;
-                //    //});
-                //}
+              if (started == true) {
+                  time_array.push(Date.now() - time_helper);
+              }
+
+              self.game.step(self.ram);
+              var frame_data = {};
+              frame_data['action'] = atariControlsToALE(frameActions, ctrls);
+              frame_data['keys_pressed'] = frameActions;
+              frame_data['reward'] = self.game.reward;
+              frame_data['terminal'] = self.game.terminal;
+              frame_data['score'] = self.game.score;
+              trajectory[self.game.frame-1] = frame_data;
+              //if(self.game.frame % 60 == 0) {
+              //  var score = self.started ? self.game.score:0;
+              //  update_score(score); 
               //}
             } else {
               self.save_seq();
               sequence_sent = true;
-                
-              //if (restart_bool == true) {
-              //    restart_bool = false;
-              //    console.log("soidfnioasdnfisdafniausdnfiuasdnfiusdniuasdnfliuasd");
-              //    var temp_func = this.resetEnv;
-              //    setTimeout(function() {
-              //        reset_stuff();
-              //        //console.log("setTimeout");
-              //        //controlsSocket.controlStateChanged(54, true);
-              //        //controlsSocket.clockPulse();
-              //        ////controlsSocket.controlStateChanged(jt.ConsoleControls.RESET, true);
-              //        //await temp_func();
-              //        ////restarted = true;
-              //      }, 10000);
-              //}
-            }
+            } 
             controlsSocket.clockPulse();
-            if(isReset()) {//|| restarted == true) {
+            if(isReset()) {
               self.resetEnv();
-              //restarted = false;
             }
           }
         }
         tia.frame();
         this.framesGenerated++;
-
     };
 
-    this.resetEnv = async function() {
-        //console.log("RESETENV");
-        if (mic_enabled == false) {
-            window.location.replace("mic");
-        }
-        if (stream != null){
-            self.start_recording_finished = false;
-            self.recorder;
-            //self.video = document.querySelector('video');
-            self.audio = document.querySelector('audio');
+    this.resetEnv = function() {
+        self.save_seq();
+        self.game.reset();
+        sequence_sent = false;
+        trajectory = {};
+        self.started = true;
 
-            await self.start_recording(self.recorder, self.audio);
-
-            self.save_seq();
-            sequence_sent = false;
-            trajectory = {};
-            self.started = true;
-            self.game.reset();
-            started = true;
-            time_helper = Date.now();
-            return;
-        }
-    };
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    };
-
-    this.start_recording = async function(recorder, audio) {
-        if (self.recorder != null) {
-	        self.recorder.destroy()
-        }
-
-        //specify the stream types wanted
-        //stream = navigator.mediaDevices.getUserMedia({video: false, audio:true});
-        stream = await get_stream();
-        self.audio.srcObject = stream;
-        self.audio.muted = true;
-
-        self.recorder = new RecordRTCPromisesHandler(stream, {
-	        type: 'audio'
-        });
-
-        self.recorder.startRecording();
-        timer_start = Date.now();
-
-        self.recorder.stream = stream;
-
-        //jt.Util.log("Finished starting to record");
-        self.start_recording_finished = true;
-    };
-
-    async function get_stream() {
-        return navigator.mediaDevices.getUserMedia({video: false, audio: {echoCancellation: true}});
+        started = true;
+        time_helper = Date.now();
     }
 
     this.stop_recording_main = async function(to_send) {
-
         // turn the camera light off
         //recorder.stream.getTracks().forEach(t => t.stop());
-        await self.recorder.stopRecording();
+        await recorder.stopRecording();
 
-        self.audio.srcObject = null;
+        audio.srcObject = null;
 
-        let blob = await self.recorder.getBlob();
-        self.audio.src = URL.createObjectURL(blob);
+        let blob = await recorder.getBlob();
+        audio.src = URL.createObjectURL(blob);
 
-        await Javatari.room.speaker.stop_recording(key);
+        //await Javatari.room.speaker.stop_recording(key);
 
         //upload video stream
         var stringname = "audio/wav"
@@ -4649,21 +4550,56 @@ jt.AtariConsole = function() {
         //var keyjsonname = key + "logging"
         var keyjsonname = rom + "_" + s3_code + "_" + file_count + ".json";
         await getSignedRequest(to_send, logname, keyjsonname, true);
+    };
 
-        //$("#mturk-key").css("background-color", "green");
-        //console.log($("#mturk-key").css("background-color"));
+    var uploadFile = async function(file, s3Data, url, confirm, isJson, stringname){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", s3Data.url);
 
+        var postData = new FormData();
+        for(s3key in s3Data.fields){
+            postData.append(s3key, s3Data.fields[s3key]);
+        }
+
+        if (isJson) {
+            postData.append('file', JSON.stringify(file));
+
+        } else {
+            //console.log('is a webm file in upload file');
+            postData.append('file', file);
+        }
+
+        xhr.onload = async function () {
+            if (xhr.status == 200 || xhr.status == 204) {
+                numUploaded += 1;
+
+                finished_uploading = true;
+                found = true;
+
+                if (numUploaded % 3 == 0 && upload_blobs) {
+                    window.location.replace("/last");
+                }
+                else if (numUploaded % 3 == 0) { 
+                }
+            }
+            else {
+                console.log("Status? " + xhr.status)
+            }
+        }
+
+        xhr.send(postData);
     };
 
     var getSignedRequest = async function (file, stringname, keyname, isJson){
         var xhr = new XMLHttpRequest();
- 
+
         xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
         xhr.onreadystatechange = function(){
             if(xhr.readyState === 4){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
                     uploadFile(file, response.data, response.url, response, isJson, keyname);
+                    //this.uploadFile(file, response.data, response.url, response, isJson, keyname);
                 }
                 else{
                     //alert("Could not get signed URL.");
@@ -4671,58 +4607,7 @@ jt.AtariConsole = function() {
             }   
         };
         xhr.send();
-    }
-
-  var uploadFile = async function(file, s3Data, url, confirm, isJson, stringname){
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", s3Data.url);
-
-      var postData = new FormData();
-      for(s3key in s3Data.fields){
-          postData.append(s3key, s3Data.fields[s3key]);
-      }
-      //console.log('postData');
-      //console.log(postData)
-      if (isJson) {
-          postData.append('file', JSON.stringify(file));
-
-      } else {
-          //console.log('is a webm file in upload file');
-          postData.append('file', file);
-      }
-      // Display the key/value pairs
-      //for (var pair of postData.entries()) {
-      //    console.log(pair[0]+ ', ' + pair[1]); 
-      //}
-
-      xhr.onload = async function () {
-            if (xhr.status == 200 || xhr.status == 204) {
-                  numUploaded += 1;
-
-                  finished_uploading = true;
-                  found = true;
-
-                  if (numUploaded % 3 == 0 && upload_blobs) {
-                      //await new Promise(r => setTimeout(r, 5000));
-                      window.location.replace("/last");
-                  }
-                  else if (numUploaded % 3 == 0) { 
-                      // put stuff here that you want to be updated after every round
-                      // except for the last round
-                      //document.getElementById("reset").dispatchEvent(save_the_event);
-                      //reset_stuff();
-                  }
-            }
-            else {
-                console.log("Status? " + xhr.status)
-            }
-      }
-
-      xhr.send(postData);
-      //if (isJson) {
-      //    alert("Enter the following string into mechanical turk: " + key);
-      //}
-  }
+    };
 
     var isReset = function() {
         return (frameActions[ctrls.RESET] || (self.game.terminal && self.started && frameActions[self.game.ADDITIONAL_RESET]));
@@ -5204,18 +5089,24 @@ jt.AtariConsole = function() {
     this.save_seq = function() {
       if(Object.keys(trajectory).length > LEN_SAVE_THRESHOLD && !sequence_sent && self.started) {
         started = false;
-        to_send = JSON.stringify({'trajectory':trajectory, 'init_state':self.init_state,
+        this.started = false;
+        to_send = JSON.stringify({'trajectory':trajectory, 'init_state': self.init_state,
                                   'game_id':self.game_id, 'final_score': self.game.score,
                                   'time_stamp': time_array});
         if (clicked == true) {
+            clicked = false;
             $("#reset").css("background-color", "#FF9900");
             $("#reset").html("Start new game (or press F12)");
-            self.stop_recording_main(to_send)
+            this.stop_recording_main(to_send);
         }
         time_array = [];
-        //sequenceToServ(trajectory, self.init_state, self.game.id, self.game.score);
       }
     }
+
+
+
+
+
 };
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
@@ -13601,169 +13492,36 @@ jt.WebAudioSpeaker = function() {
     this.powerOn = function() {
         createAudioContext();
         if (!audioContext) return;
+
         processor = audioContext.createScriptProcessor(Javatari.AUDIO_BUFFER_SIZE, 0, 1);
         processor.onaudioprocess = onAudioProcess;
-
-        dest = audioContext.createMediaStreamDestination();
-        mediaRecorder = new MediaRecorder(dest.stream);
-
-        //connect filter to it?
-        mediaRecorder.start();
-
-        //mediaRecorder.ondataavailable = async function(evt) {
-        //};
         this.play();
-    };
-
-    var uploadAtariData = async function () {
-        // ============ implement wav encoding scheme on the stored buffer information
-        // leftArray and rightArray for the two channels of output
-        // arrayLength = size of each array
-
-        // https://gist.github.com/meziantou/edb7217fddfbb70e899e
-        var leftBuffer  = flattenArray(leftArray, arrayLength);
-        var rightBuffer = flattenArray(leftArray, arrayLength);
-
-        var interleaved = interleave(leftBuffer, rightBuffer);
-            
-        // we create our wav file
-        var buffer = new ArrayBuffer(44 + interleaved.length * 2);
-        var view = new DataView(buffer);
-
-        // RIFF chunk descriptor
-        writeUTFBytes(view, 0, 'RIFF');
-        view.setUint32(4, 44 + interleaved.length * 2, true);
-        writeUTFBytes(view, 8, 'WAVE');
-        // FMT sub-chunk
-        writeUTFBytes(view, 12, 'fmt ');
-        view.setUint32(16, 16, true); // chunkSize
-        view.setUint16(20, 1, true); // wFormatTag
-        view.setUint16(22, 2, true); // wChannels: stereo (2 channels)
-        view.setUint32(24, jt.TiaAudioSignal.SAMPLE_RATE, true); // dwSamplesPerSec
-        view.setUint32(28, jt.TiaAudioSignal.SAMPLE_RATE * 4, true); // dwAvgBytesPerSec
-        view.setUint16(32, 4, true); // wBlockAlign
-        view.setUint16(34, 16, true); // wBitsPerSample
-        // data sub-chunk
-        writeUTFBytes(view, 36, 'data');
-        view.setUint32(40, interleaved.length * 2, true);
-
-        // write the PCM samples
-        var index = 44;
-        var volume = 1;
-        for (var i = 0; i < interleaved.length; i++) {
-            view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
-            index += 2;
-        }
-            
-        var atarisound = new Blob([view], {'type' : 'audio/wav'});
-        var atariname = "audio/wav";
-        var keyatariname = rom + "_" + s3_code + "_atari_" + file_count + ".wav";
-        await getSignedRequest(atarisound, atariname, keyatariname, false);
-        leftArray = [];
-        arrayLength = 0;
     };
 
     this.powerOff = function() {
         this.mute();
         audioContext = undefined;
-        mediaRecorder.stop();
     };
 
     this.play = function () {
-        if (processor) {
-            processor.connect(audioContext.destination);
-            //processor.connect(mediaRecorder.dest);
-        }
+        if (processor) processor.connect(audioContext.destination);
     };
 
     this.mute = function () {
         if (processor) processor.disconnect();
     };
 
-    this.stop_recording = async function (k) {
-        //mediaRecorder.stop();
-        key = k;
-        await uploadAtariData();
-    };
-
     var createAudioContext = function() {
         try {
             var constr = (window.AudioContext || window.webkitAudioContext || window.WebkitAudioContext);
             if (!constr) throw new Error("WebAudio API not supported by the browser");
-            audioContext = new AudioContext({sampleRate : 44100});
+            audioContext = new constr();
             resamplingFactor = jt.TiaAudioSignal.SAMPLE_RATE / audioContext.sampleRate;
             jt.Util.log("Speaker AudioContext created. Sample rate: " + audioContext.sampleRate);
-            jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
+            //jt.Util.log("Audio resampling factor: " + (1/resamplingFactor));
         } catch(e) {
             jt.Util.log("Could not create AudioContext. Audio disabled.\n" + e.message);
         }
-    };
-
-    var getSignedRequest = async function (file, stringname, keyname, isJson){
-        var xhr = new XMLHttpRequest();
- 
-        xhr.open("GET", "/sign_s3?file_name="+keyname+"&file_type="+stringname);
-        xhr.onreadystatechange = function(){
-            if(xhr.readyState === 4){
-                if(xhr.status === 200){
-                    var response = JSON.parse(xhr.responseText);
-                    uploadFile(file, response.data, response.url, response, isJson, keyname);
-                }
-                else{
-                    //alert("Could not get signed URL.");
-                }
-            }   
-        };
-        xhr.send();
-    };
-
-    var uploadFile = async function(file, s3Data, url, confirm, isJson, stringname){
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", s3Data.url);
-
-        var postData = new FormData();
-        for(s3key in s3Data.fields){
-            postData.append(s3key, s3Data.fields[s3key]);
-        }
-        //console.log('postData');
-        //console.log(postData)
-        if (isJson) {
-            postData.append('file', JSON.stringify(file));
-
-        } else {
-            //console.log('is a webm file in upload file');
-            postData.append('file', file);
-        }
-        // Display the key/value pairs
-        //for (var pair of postData.entries()) {
-        //    console.log(pair[0]+ ', ' + pair[1]); 
-        //}
-        xhr.onload = async function () {
-              if (xhr.status == 200 || xhr.status == 204) {
-                    numUploaded += 1;
-
-                    finished_uploading = true;
-                    found = true;
-
-                    if (numUploaded % 3 == 0 && upload_blobs) {
-                        //await new Promise(r => setTimeout(r, 5000));
-                        window.location.replace("/last");
-                    }
-                    else if (numUploaded % 3 == 0) { 
-                      //document.getElementById("reset").dispatchEvent(save_the_event);
-                      //reset_stuff();
-                    }
-              }
-              else {
-                  console.log("Status? " + xhr.status)
-              }
-        }
-
-
-        xhr.send(postData);
-        //if (isJson) {
-        //    alert("Enter the following string into mechanical turk: " + key);
-        //}
     };
 
     var onAudioProcess = function(event) {
@@ -13777,59 +13535,15 @@ jt.WebAudioSpeaker = function() {
             input.buffer, input.start, input.bufferSize, resamplingFactor,
             outputBuffer, 0, outputBuffer.length
         );
-            
-        if (started == true) {
-            if (started_atari == false) {
-                // skip this one since it's the first
-                started_atari = true;
-            }
-            else {
-                leftArray.push(new Float32Array(event.outputBuffer.getChannelData(0)));
-                arrayLength += Javatari.AUDIO_BUFFER_SIZE;
-            }
-        }
     };
 
-    var flattenArray = function (channelBuffer, recordingLength) {
-        var result = new Float32Array(recordingLength);
-        var offset = 0;
-        for (var i = 0; i < channelBuffer.length; i++) {
-            var buffer = channelBuffer[i];
-            result.set(buffer, offset);
-            offset += buffer.length;
-        }
-        return result;
-    };
-
-    var interleave = function (leftChannel, rightChannel) {
-        var length = leftChannel.length + rightChannel.length;
-        var result = new Float32Array(length);
-
-        var inputIndex = 0;
-
-        for (var index = 0; index < length;) {
-            result[index++] = leftChannel[inputIndex];
-            result[index++] = rightChannel[inputIndex];
-            inputIndex++;
-        }
-        return result;
-    };
-
-    var writeUTFBytes = function (view, offset, string) {
-        for (var i = 0; i < string.length; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
-        }
-    };
 
     var audioSignal;
     var resamplingFactor;
-    var audioContext;
 
+    var audioContext;
     var processor;
 
-    var dest;//= audioContext.createMediaStreamDestination();
-    var mediaRecorder;//= new MediaRecorder(dest.stream);
-    var key;
 };
 
 // Copyright 2015 by Paulo Augusto Peccin. See license.txt distributed with this file.
@@ -14003,7 +13717,7 @@ jt.ROMLoader = function() {
     };
 
     this.loadFromFile = function (file) {
-        //jt.Util.log("Reading ROM file: " + file.name);
+        jt.Util.log("Reading ROM file: " + file.name);
         var reader = new FileReader();
         reader.onload = function (event) {
             var content = new Uint8Array(event.target.result);
@@ -15519,29 +15233,26 @@ tripleIndexDecimalScore = function(lower_index, middle_index, higher_index, ram)
 };
 
 var sequenceToServ = function(trajectory, state, game_id, final_score) {
-  to_send = JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score});
-  self.console.stop_recording_main(this.recorder, this.video, to_send);
-  return;
-  //return $.ajax({url:'/api/save', type:'POST', contentType:'application/json', data: JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score}), success:function(data){console.log('Sequence ' + data + ' saved.'); //window.location.href='/replay/'+data;
-
-  //}});
+  return $.ajax({url:'/api/save', type:'POST', contentType:'application/json', data: JSON.stringify({'trajectory':trajectory, 'init_state':state,'game_id':game_id, 'final_score':final_score}), success:function(data){console.log('Sequence ' + data + ' saved.'); //window.location.href='/replay/'+data;
+  }});
 };
 
 var saveFrame = function(data, rom) {
-   //return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_frame",  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'], 'height':data['height'], 'rom':rom}), async:false});
+   return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_frame",  data: JSON.stringify({'screenshot': data['canvas'], 'width':data['width'], 'height':data['height'], 'rom':rom}), async:false});
 };
 
 var saveReplayTrajectory = function(data, rom, seqid) {
-   //return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_trajectory",  data: JSON.stringify({'trajectory': data, 'rom':rom, 'seqid':seqid}), async:false});
+   return $.ajax({type: "POST", contentType:'application/json',  url: "/api/save_trajectory",  data: JSON.stringify({'trajectory': data, 'rom':rom, 'seqid':seqid}), async:false});
+
 }
 
 getTrajectory = function(trajectory_id) {
     return $.ajax({url:'/api/trajectory/' + trajectory_id, type:'GET', async:false});
 };
 
-//getScoresForRom = function(rom) {
-//    return eval($.ajax({url:'/api/quantiles/' + rom, type:'GET', async:false}).responseText);
-//};
+getScoresForRom = function(rom) {
+    return eval($.ajax({url:'/api/quantiles/' + rom, type:'GET', async:false}).responseText);
+};
 
 var has_elem = function(arr, elem) {
   return arr.indexOf(elem) > -1;
@@ -15662,6 +15373,7 @@ isNumeric = function(n) {
 
 Qbert = function() {
     this.id = 0;
+    update_score("Click \"Start new game\" to begin!");
     this.reset = function() {
         this.reward     = 0;
         this.score      = 0;
@@ -15713,7 +15425,7 @@ Qbert = function() {
 Montezuma = function() {
     this.id = 4;
     this.prev = MIN_TILL_COMPLETION;
-    this.reset_count = 0;
+    update_score("Click \"Start new game\" to begin!");
 
     this.reset = function() {  
         this.reward   = 0;
@@ -15726,10 +15438,8 @@ Montezuma = function() {
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         update_score(calc.toFixed(0) + " min. remaining : 6 live(s) left");
-
-        this.reset_count += 1;
     };   
-    this.reset();
+    //this.reset();
 
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
 
@@ -15785,6 +15495,7 @@ Montezuma = function() {
 Invaders = function() {
     this.id = 3;
     this.prev = MIN_TILL_COMPLETION;
+    update_score("Click \"Start new game\" to begin!");
 
 	this.reset = function() {
         this.reward   = 0;
@@ -15796,14 +15507,30 @@ Invaders = function() {
         this.prev_lives = 3;
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
+        console.log("reset");
         update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
-        //console.log("updated score");
-        click_start = Date.now();
+
+        this.just_reset = true;
     };
 
-    this.reset();
-	this.ADDITIONAL_RESET = null;
+    //this.reset();
+    this.ADDITIONAL_RESET = null;
+
+    this.saved_state = null;
+
     this.step = function(ram) {
+        if (this.just_reset && this.saved_state != null) {
+            //ram.write('0x98', 0x00 & ram.read('0x98'));
+            //console.log("updated tmp: " + ram.read('0x98') & 0x80);
+            //ram.init();
+            ram.loadState(this.saved_state);
+            this.just_reset = false;
+        }
+        
+        if (this.saved_state != null) {
+            this.saved_state = ram.saveState();
+        }
+
         var score = doubleIndexDecimalScore('0xE8', '0xE6', ram);
         // reward cannot get negative in this game. When it does, it means that the score has looped (overflow)
         this.reward = score - this.score;
@@ -15814,23 +15541,24 @@ Invaders = function() {
         }
         this.score = score;
         this.lives = ram.read('0xC9');
+        if (this.prev_lives == 3 && this.lives == 0) {
+            this.lives = 3; 
+        }
 
         tmp = ram.read('0x98') & 0x80;
         this.terminal = tmp || this.lives == 0;
-        if (this.terminal == 128) {
-            this.terminal = false;
-        }
+
+        //if (tmp == 128) {
+        //    this.terminal = true;
+        //    console.log("tmp == 128");
+        //}
 
         //if (tmp == 128 || total_time >= max_time || this.terminal == true) {
-        if ((tmp == 128 && Date.now() - click_start > 5000) || total_time >= max_time) {
-            //console.log("GAME ENDED EARLY FLAG");
+        if (tmp == 128 || total_time >= max_time) {
+            console.log("tmp == 128");
             this.terminal = true;
             this.lives = 0;
             this.prev_lives = 1;
-        }
-        else if (tmp == 128) {
-            this.lives = 3;
-            //console.log("else if");
         }
 
         const ret = update_rom_state(this.terminal, this.prev_lives, this.startTime, this.prev, this.lives);
@@ -15857,6 +15585,7 @@ Invaders = function() {
 Pinball = function() {
     // don't need to worry about this one
     this.id = 1;
+    update_score("Click \"Start new game\" to begin!");
     this.reset = function() {
         this.reward   = 0;
         this.score    = 0;
@@ -15864,7 +15593,7 @@ Pinball = function() {
         this.terminal = false;
         this.frame    = 0;
     };
-    this.reset();
+    //this.reset();
 	this.ADDITIONAL_RESET = null;
 
 	this.step = function(ram) {
@@ -15890,6 +15619,7 @@ Pinball = function() {
 MsPacMan = function() {
     this.id = 2;
     this.prev = MIN_TILL_COMPLETION;
+    update_score("Click \"Start new game\" to begin!");
 
     this.reset = function(ram) {
         this.reward   = 0;
@@ -15904,7 +15634,7 @@ MsPacMan = function() {
         update_score(calc.toFixed(0) + " min. remaining : 3 live(s) left");
     };
 
-    this.reset();
+    //this.reset();
     this.ADDITIONAL_RESET = jt.ConsoleControls.JOY0_BUTTON; 
 
     this.step = function(ram){
@@ -15955,6 +15685,8 @@ MsPacMan = function() {
 Seaquest = function() {
     this.id = 5;
     this.prev = MIN_TILL_COMPLETION;
+    update_score("Click \"Start new game\" to begin!");
+
     this.reset = function() {
         this.reward   = 0;
         this.score    = 0;
@@ -15966,8 +15698,9 @@ Seaquest = function() {
         this.startTime = Date.now();
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         update_score(calc.toFixed(0) + " min. remaining : 4 live(s) left");
+        this.changed = true;
     };
-    this.reset();
+    //this.reset();
 	this.ADDITIONAL_RESET = null;
 
 	this.step = function(ram) {
@@ -15979,6 +15712,11 @@ Seaquest = function() {
         // update terminal status
         this.terminal = ram.read('0xA3') != 0;
         this.lives = ram.read('0xBB') + 1;
+
+        if (this.changed == true){
+            this.terminal = false;
+            this.changed = false;
+        }
 
         if (total_time >= max_time) {
             this.terminal = true;
@@ -16020,7 +15758,7 @@ Enduro = function() {
         var calc = Math.ceil(((60000 * MIN_TILL_COMPLETION) - total_time) / 60000);
         update_score(calc.toFixed(0) + " min. remaining");
     };
-    this.reset();
+    //this.reset();
 	this.ADDITIONAL_RESET = null;
 
 	this.step = function(ram) {

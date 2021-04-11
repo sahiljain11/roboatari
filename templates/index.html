@@ -18,6 +18,7 @@
         <script type="text/javascript"> var s3_code = '{{key}}';</script>
         <script type="text/javascript"> window.Javatari_IMAGES_PATH = '{{ url_for('static',filename='img/') }}';</script>
         <script type="text/javascript"> var ROM_PATH = '{{ url_for('static',filename='roms/') }}';</script>
+        <!script src="../static/js/javatari.js"></script>
         <script src="../static/js/javatari.js"></script>
         <script src="../static/js/ui.js"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}"></style>
@@ -67,13 +68,19 @@
           async function(s) {
             mic_enabled = true;
             if (rom == "revenge" || rom == "seaquest") {
-              // simulate a click
-              controlsSocket.controlStateChanged(control, true);
-              await Javatari.room.console.resetEnv();
-              $("#reset").css("background-color", "green");
-              $("#reset").html("Game has started");
-              controlsSocket.controlStateChanged(control, false);
-              clicked = true;
+	            //var control = jt.ConsoleControls.RESET;
+	            //var controlsSocket = Javatari.room.console.getControlsSocket();
+              
+              //document.getElementById("reset").click();
+              //await start_recording_audio();
+
+              //// simulate a click
+              //controlsSocket.controlStateChanged(control, true);
+              //Javatari.room.console.resetEnv();
+              //controlsSocket.controlStateChanged(control, false);
+              //clicked = true;
+              //$("#reset").css("background-color", "green");
+              //$("#reset").html("Game has started");
             }
           }
         )
