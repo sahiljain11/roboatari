@@ -171,7 +171,11 @@ var start_rec = async function() {
     audio.muted = true;
 
     recorder = new RecordRTCPromisesHandler(stream, {
-        type: 'audio/wav'
+        //type: 'audio/wav'
+        type: 'audio',
+        mimeType: 'audio/wav',
+        recorderType: RecordRTC.StereoAudioRecorder,
+        numberOfAudioChannels: 2
     });
 
     recorder.startRecording();
