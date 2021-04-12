@@ -160,6 +160,7 @@ var start_recording_audio = async function() {
 };
 
 var start_rec = async function() {
+    console.log("starting recordinggg");
     if (recorder != null) {
         recorder.destroy()
     }
@@ -172,13 +173,15 @@ var start_rec = async function() {
 
     recorder = new RecordRTCPromisesHandler(stream, {
         //type: 'audio/wav'
-        type: 'audio',
-        mimeType: 'audio/wav',
-        recorderType: RecordRTC.StereoAudioRecorder,
-        numberOfAudioChannels: 2
+        type: 'audio/webm',
+        //mimeType: 'audio/wav',
+        recorderType: RecordRTC.MediaStreamRecorder,
+        //numberOfAudioChannels: 2,
+        sampleRate: 44100,
+        bufferSize: 1024
     });
 
-    recorder.startRecording();
+    await recorder.startRecording();
     timer_start = Date.now();
 
     recorder.stream = stream;

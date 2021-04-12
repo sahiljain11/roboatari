@@ -63,7 +63,7 @@
         var finished_uploading = false;
         var found = false;
         var mic_enabled = false;
-        let stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
+        var stream = navigator.mediaDevices.getUserMedia({video: false, audio: true})
         .then(
           async function(s) {
             mic_enabled = true;
