@@ -22,8 +22,10 @@ from scipy import misc
 
 class CreateGaze():
 
-    def __init__(self, rom: str) -> None:
+    def __init__(self, rom: str, d1: int, d2: int) -> None:
         self.initialize_model(rom)
+        self.dim1 = d1
+        self.dim2 = d2
 
     def normalize(self, obs):
         max_val, min_val = np.max(obs), np.min(obs)
@@ -124,22 +126,21 @@ class CreateGaze():
 
         self.model.load_weights(self.modelfile)
 
-    def create_gaze_frame(self, atari_file: str, output_file: str, rom: str) -> None:
+    def create_gaze_frame(self, atari_files: list, output_file: str, rom: str) -> None:
         mean = np.load(self.meanfile)
 
         stacked = []
         stacked_obs = np.zeros((84,84,4))
-        
-        obs = cv2.imread(atari_file)
-        img_np = np.dot(obs, [0.299, 0.587, 0.114]) # convert to grayscale
-        img_np = misc.imresize(img_np, [84, 84], interp='bilinear')
-        img_np = np.expand_dims(img_np, axis=2)
-        img_np = img_np.astype(np.float32) / 255.0
-        img_np -= mean
-        stacked_obs[:,:,0] = img_np.squeeze()
-        stacked_obs[:,:,1] = img_np.squeeze()
-        stacked_obs[:,:,2] = img_np.squeeze()
-        stacked_obs[:,:,3] = img_np.squeeze()
+
+        for i in range(0, 4):
+            frame_path = atari_files[i]
+            obs = cv2.imread(frame_path)
+            img_np = np.dot(obs, [0.299, 0.587, 0.114]) # convert to grayscale
+            img_np = misc.imresize(img_np, [84, 84], interp='bilinear')
+            img_np = np.expand_dims(img_np, axis=2)
+            img_np = img_np.astype(np.float32) / 255.0
+            img_np -= mean
+            stacked_obs[:,:,i] = img_np.squeeze()
 
         stacked_obs = np.expand_dims(stacked_obs, axis=0)
 
@@ -156,6 +157,7 @@ class CreateGaze():
         hmap = np.uint8(hmap)
 
         # convolve output of network with gaussian filter
+        output = misc.imresize(output, [self.dim1, self.dim2], interp='bilinear')
         m = cm.ScalarMappable(cmap='jet')
         pic = convolve(output, Gaussian2DKernel(x_stddev=1))
         pic = m.to_rgba(pic)[:,:,:3]
@@ -171,14 +173,12 @@ class CreateGaze():
         temp[:,:,1] = temp[:,:,2]
         temp[:,:,2] = stor
 
-        #cv2.imwrite(output_file, np.uint8(temp*255.0))
-
         # blended
-        #hmap = 0.9 * 255.0 * pic.astype(np.float) + 0.05 * 255.0 * temp.astype(np.float)
-        hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(255.0 * temp)
-        #hmap = np.uint8(255.0 * temp)
-        final = np.zeros((84, 84 * 2, 3))
-        final[:,:84,:] = np.uint8(temp * 255.0)
-        final[:,84:,:] = hmap
+        #hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(255.0 * temp)
+        hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(255.0 * obs)
+        final = np.zeros((self.dim1, self.dim2 * 2, 3))
+        #final[:,:160,:] = np.uint8(temp * 255.0)
+        final[:,:self.dim2,:] = np.uint8(obs * 255.0)
+        final[:,self.dim2:,:] = hmap
         
         cv2.imwrite(output_file, final)
