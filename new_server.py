@@ -140,6 +140,8 @@ def replay(traj_id):
   if session.get('new_time') == None or session.get('old_time') == None:
     session["new_time"] = 1
     session["old_time"] = 1
+  path = os.path.abspath(os.getcwd()) + "/" + traj_id
+  os.mkdir(path)
   return render_template('replay.html', replay=True, traj_id=traj_id,
                          seconds=session["new_time"], old_time=session["old_time"])
 
@@ -182,8 +184,7 @@ def save_frame():
   im = Image.open(BytesIO(base64.b64decode(data)))
   im = im.crop((0,0,w,h))
 
-  path = os.path.join(os.getcwd(), f'images/{key}_{count}.png')
-  print(path)
+  path = os.path.join(os.getcwd(), f'{key}/{key}_{count}.png')
   im.save(path)
   return 'screenshot saved', 200
 
