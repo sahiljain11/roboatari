@@ -10,7 +10,7 @@ parser.add_argument('--gaze', default=False, type=bool, help="Specify True/False
 
 args = parser.parse_args()
 
-num = 1
+num = 4
 dir_list = os.listdir(os.getcwd())
 
 if args.gaze:
@@ -20,6 +20,11 @@ else:
 
 while dir_name in dir_list:
     print(f"Generating {dir_name}...")
+    print("=" * 80)
+    print("=" * 80)
+    print("=" * 80)
+    print("=" * 80)
+    print("=" * 80)
 
     TRAJ_NAME = f"{args.key}_{num}"
 
@@ -38,7 +43,7 @@ while dir_name in dir_list:
     NUM_FRAMES = len(data["time_stamp"])
 
     # get the number of seconds the wav file lasts so you can calculate FPS
-    y, sr = librosa.load(WAV_FILE)
+    y, sr = librosa.load(WAV_FILE, sr=48000)
     SECONDS = librosa.get_duration(y=y, sr=sr)
     FPS = int(round(NUM_FRAMES / SECONDS))
 

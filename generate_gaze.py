@@ -46,6 +46,10 @@ class CreateGaze():
             extension = 'montezuma_revenge'
         elif rom == "spaceinvaders":
             extension = 'space_invaders'
+        elif rom == "enduro":
+            extension = 'enduro'
+        elif rom == "seaquest":
+            extension = 'seaquest'
         else:
             raise Exception(f"{rom} rom currently not supported")
         
