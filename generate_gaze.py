@@ -14,6 +14,7 @@ from matplotlib.pyplot import imshow
 import gaze.input_utils as IU, gaze.misc_utils as MU
 from astropy.convolution import convolve
 from astropy.convolution.kernels import Gaussian2DKernel
+from PIL import Image
 
 import os.path as path
 import cv2
@@ -172,17 +173,16 @@ class CreateGaze():
         # saved heatmap
         #pic = cv2.imread('gaze/hm.png')
         #os.remove(output_file)
-        temp = np.array(img)
-        stor = temp[:,:,1].copy()
-        temp[:,:,1] = temp[:,:,2]
-        temp[:,:,2] = stor
+        temp = np.array(obs)
+        stor = temp[:,:,2].copy()
+        temp[:,:,2] = temp[:,:,0]
+        temp[:,:,0] = stor
 
         # blended
-        #hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(255.0 * temp)
-        hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(255.0 * obs)
+        hmap = 0.5 * 255.0 * pic + 0.5 * np.uint8(temp)
         final = np.zeros((self.dim1, self.dim2 * 2, 3))
-        #final[:,:160,:] = np.uint8(temp * 255.0)
         final[:,:self.dim2,:] = np.uint8(obs * 255.0)
         final[:,self.dim2:,:] = hmap
         
-        cv2.imwrite(output_file, final)
+        final = Image.fromarray(np.uint8(final))
+        final.save(output_file)
