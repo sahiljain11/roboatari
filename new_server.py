@@ -104,22 +104,25 @@ def blank():
 
 @app.route('/sign_s3/')
 def sign_s3():
-    #   S3_BUCKET = os.environ.get('S3_BUCKET')
-    S3_BUCKET = 'atari11'
+    S3_BUCKET = os.environ.get('S3_BUCKET')
+    #S3_BUCKET = 'atari11'
     file_name = request.args.get('file_name')
     file_type = request.args.get('file_type')
 
-    s3 = boto3.client('s3', region_name='us-east-2', config = boto3.session.Config(signature_version='s3v4'))
+    AWS_REGION = os.environ.get("AMAZON_REGION")
+    AWS_KEY = os.environ.get("AMAZON_CLIENT_KEY")
+    AWS_SECRET_KEY = os.environ.get("AMAZON_SECRET_CLIENT_KEY")
+
+    s3 = boto3.client('s3', region_name=AWS_REGION,
+                  aws_access_key_id=AWS_KEY,
+                  aws_secret_access_key=AWS_SECRET_KEY)
 
     presigned_post = s3.generate_presigned_post(
-        Bucket = S3_BUCKET,
-        Key = file_name,
-        Fields = {"acl": "public-read", "Content-Type": file_type},
-        Conditions = [
-            {"acl": "public-read"},
-            {"Content-Type": file_type}
-        ],
-        ExpiresIn = 3600
+        Bucket=S3_BUCKET,
+        Key=file_name,
+        Fields={},
+        Conditions=[],
+        ExpiresIn=3600
     )
 
     return json.dumps({
@@ -188,5 +191,24 @@ def save_frame():
   im.save(path)
   return 'screenshot saved', 200
 
+
+
 if __name__ == "__main__":
+
+  if os.environ['ROM'] is None:
+    raise Exception('Please specify the ROM: export ROM=<spaceinvaders, mspacman, revenge, enduro, seaquest>')
+  
+  if os.environ['S3_BUCKET'] is None:
+    raise Exception('Please specify the S3 bucket: export S3_BUCKET=<insert_bucket_name>')
+  
+  if os.environ.get("AMAZON_CLIENT_KEY") is None:
+    raise Exception('Please specify the AWS Key: export AMAZON_CLIENT_KEY=<insert_client_key>')
+
+  if os.environ.get("AMAZON_SECRET_CLIENT_KEY") is None:
+    raise Exception('Please specify the AWS Key: export AMAZON_SECRET_CLIENT_KEY=<insert_secret_client_key>')
+
+  if os.environ.get("AMAZON_REGION") is None:
+    raise Exception('Please specify the AWS Region: export AMAZON_REGION=<insert_region>')
+
+  rom = os.environ['ROM']
   app.run()
