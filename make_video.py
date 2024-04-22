@@ -48,10 +48,7 @@ def main(args: dict) -> None:
 
     # turns all of the images into one video file
     #command = f'ffmpeg -r 24 -start_number 1 -i {TRAJ_NAME}/{TRAJ_NAME}_%01d.png -c:v libx264 -vf "fps={FPS},format=yuv420p" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" out.mp4\n'
-    if args.gaze:
-        command = f'ffmpeg -r {FPS} -start_number 1 -i {TRAJ_NAME}_gaze/{TRAJ_NAME}_%01d.png -c:v libx264 -vf "fps={FPS},format=yuv420p" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" out.mp4\n'
-    else:
-        command = f'ffmpeg -r {FPS} -start_number 1 -i {TRAJ_NAME}/{TRAJ_NAME}_%01d.png -c:v libx264 -vf "fps={FPS},format=yuv420p" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" out.mp4\n'
+    command = f'ffmpeg -r {FPS} -start_number 1 -i {TRAJ_NAME}/{TRAJ_NAME}_%01d.png -c:v libx264 -vf "fps={FPS},format=yuv420p" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" out.mp4\n'
     f.write(command)
 
     # combines the user's audio and the atari audio
@@ -61,10 +58,7 @@ def main(args: dict) -> None:
     f.write(f"ffmpeg -i out.mp4 -i output.wav -c:v copy -c:a aac {TRAJ_NAME}_final.mp4\n")
 
     # turn mp4 into mov
-    if args.gaze:
-        command = f"ffmpeg -i {TRAJ_NAME}_final.mp4 -f mov {TRAJ_NAME}_gaze_final.mov\n"
-    else:
-        command = f"ffmpeg -i {TRAJ_NAME}_final.mp4 -f mov {TRAJ_NAME}_final.mov\n"
+    command = f"ffmpeg -i {TRAJ_NAME}_final.mp4 -f mov {TRAJ_NAME}_final.mov\n"
     f.write(command)
 
     f.write(f"rm {TRAJ_NAME}.wav\n")
@@ -83,7 +77,6 @@ def main(args: dict) -> None:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Turn atari data into a single mp4')
     parser.add_argument('--key', help="Enter the MTurk key user provided. Ex: mspacman_JE5W3X5P3T_1")
-    parser.add_argument('--gaze', default=False, type=bool, help="Specify True/False on whether or not to use a gaze directory. Default is false")
 
     args = parser.parse_args()
 
