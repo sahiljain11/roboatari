@@ -4463,10 +4463,10 @@ jt.AtariConsole = function() {
           if(replay) {
             if(self.game.frame >= 1) {
               data = Javatari.room.screen.getMonitor().getScreenURL()
-              if (!self.game.terminal) {
+              var tr = self.traj[self.game.frame]['keys_pressed'];
+              if (!self.game.terminal && tr) {
                     saveFrame(data, self.rom)
               }
-              var tr = self.traj[self.game.frame]['keys_pressed'];
               for(var k in tr){
                 //if(isNumeric(tr[k])) {
                 //  controlsSocket.controlValueChanged(parseInt(k), tr[k]);
