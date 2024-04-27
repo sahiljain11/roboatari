@@ -1,12 +1,12 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
   <!-- Yandex.Metrika counter --> <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter41793274 = new Ya.Metrika({ id:41793274, clickmap:true, trackLinks:true, accurateTrackBounce:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/41793274" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
 
-    <script type="text/javascript" 
-            src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- survey jquery-->
-    <script src="https://surveyjs.azureedge.net/1.7.6/survey.jquery.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
+    <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
     <head lang="en">
         <meta charset="UTF-8">
         <title>RoboAtari</title>
@@ -65,7 +65,7 @@
         }
 
         async function print_survey() {
-            Survey.StylesManager.applyTheme("bootstrap");
+            Survey.StylesManager.applyTheme("modern");
 
             var surveyJSON = {
               "completedHtml": "<h1>Thank you for your participation! Please enter the following into MTurk: " + s3_code + "</h1>",

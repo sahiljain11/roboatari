@@ -102,3 +102,6 @@ python make_video.py --key <traj_id>
 ```
 
 After the command has completed and used ffmpeg, your final replay video will be created named `<traj_id>_final.mov`.
+
+# Citations
+- Code based on the [Atari Grand Challenge Dataset](https://github.com/yobibyte/atarigrandchallenge): *V. Kurin, S. Nowozin, K. Hofmann, L. Beyer, and B. Leibe. The Atari Grand Challenge Dataset. arXiv preprint arXiv:1705.10998, 2017.*

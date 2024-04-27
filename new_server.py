@@ -211,4 +211,6 @@ if __name__ == "__main__":
     raise Exception('Please specify the AWS Region: export AMAZON_REGION=<insert_region>')
 
   rom = os.environ['ROM']
+
+  print('Reminder: This application only works on Chrome!')
   app.run()
